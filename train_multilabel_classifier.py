@@ -2,6 +2,8 @@
 Train a multi-label classifier to classify the Reuters data by topics
 """
 
+import random
+
 import click
 
 from text_classification import (
@@ -60,6 +62,9 @@ def main(**kwargs):
     test_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
         [d for d in reuters_data if not d["is_train"]],
         False)
+    # shuffle training examples
+    random.seed(RANDOM_SEED)
+    train_examples = random.shuffle(train_examples)
 
     # train_examples = train_examples[:100]
     # test_examples = test_examples[:100]
