@@ -25,8 +25,8 @@ RANDOM_SEED = 12345
 # https://huggingface.co/transformers/main_classes/trainer.html#trainingarguments
 TRAINING_ARGUMENTS = {
     "do_train": True,
-    "evaluation_strategy": "no",  # to enable evaluation during training, change to "steps"
-    "logging_steps": 1,
+    "evaluation_strategy": "steps",  # to disable evaluation during training, change to "no"
+    "logging_steps": 50,
     "num_train_epochs": 1.0,
     "per_device_train_batch_size": 8,
     "per_device_eval_batch_size": 16,
@@ -64,7 +64,7 @@ def main(**kwargs):
         False)
     # shuffle training examples
     random.seed(RANDOM_SEED)
-    train_examples = random.shuffle(train_examples)
+    random.shuffle(train_examples)
 
     # train_examples = train_examples[:100]
     # test_examples = test_examples[:100]
