@@ -1,0 +1,8 @@
+{
+    "model": {
+        "model_name_or_dirpath": "roberta-base",
+        "revision": "main",
+        "saved_model_dirpath": "trained",
+        "task_name": "multilabel"
+    }
+}
