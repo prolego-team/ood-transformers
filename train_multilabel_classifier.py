@@ -11,8 +11,8 @@ from text_classification import (
     training_utils
 )
 from nlp_datasets import (
-    reuters_dataset_dictionaries,
-    reuters_class_labels
+    TOP_FIVE_CATEGORIES,
+    reuters_dataset_dictionaries
 )
 
 
@@ -53,19 +53,19 @@ def main(**kwargs):
     TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
 
     # read data and create train/test examples
-    reuters_data = reuters_dataset_dictionaries()
+    reuters_data = reuters_dataset_dictionaries(categories=TOP_FIVE_CATEGORIES)
     train_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
         [d for d in reuters_data if d["is_train"]],
         False)
     test_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
         [d for d in reuters_data if not d["is_train"]],
         False)
-    train_examples = train_examples[:100]
-    test_examples = test_examples[:100]
+
+    # train_examples = train_examples[:100]
+    # test_examples = test_examples[:100]
 
     # load tokenizer
-    class_labels = reuters_class_labels()
-    num_labels = len(class_labels)
+    num_labels = len(TOP_FIVE_CATEGORIES)
     _, tokenizer = model_utils.load_pretrained_model_and_tokenizer(
         training_config.model_config,
         num_labels
@@ -74,14 +74,14 @@ def main(**kwargs):
     # create train and test datasets
     train_dataset = dataset_utils.MultilabelDataset(
         train_examples,
-        class_labels,
+        TOP_FIVE_CATEGORIES,
         tokenizer,
         TRAINING_ARGUMENTS["block_size"],
         predict=False
     )
     test_dataset = dataset_utils.MultilabelDataset(
         test_examples,
-        class_labels,
+        TOP_FIVE_CATEGORIES,
         tokenizer,
         TRAINING_ARGUMENTS["block_size"],
         predict=False
@@ -105,7 +105,7 @@ def main(**kwargs):
         None,
         "multilabel")
     inference_config = configs.InferenceConfig(
-        trained_model_config, class_labels, TRAINING_ARGUMENTS["block_size"])
+        trained_model_config, TOP_FIVE_CATEGORIES, TRAINING_ARGUMENTS["block_size"])
     configs.save_config_for_inference(inference_config, kwargs["inference_config_filepath"])
 
 
