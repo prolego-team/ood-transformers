@@ -2,9 +2,11 @@
 Train a multi-label classifier to classify the Reuters data by topics
 """
 
+import os
 import random
 
 import click
+import pickle
 
 from text_classification import (
     configs,
@@ -16,6 +18,7 @@ from nlp_datasets import (
     TOP_FIVE_CATEGORIES,
     reuters_dataset_dictionaries
 )
+import openmax
 
 
 RANDOM_SEED = 12345
@@ -112,6 +115,18 @@ def main(**kwargs):
     inference_config = configs.InferenceConfig(
         trained_model_config, TOP_FIVE_CATEGORIES, TRAINING_ARGUMENTS["block_size"])
     configs.save_config_for_inference(inference_config, kwargs["inference_config_filepath"])
+
+    # construct mean vectors from training examples
+    mean_logits = {}
+    for class_label in TOP_FIVE_CATEGORIES:
+        class_examples = [e for e in train_examples if class_label in e.labels]
+        class_mean_logit = openmax.examples_to_mean_logit(class_examples, inference_config)
+        mean_logits[class_label] = class_mean_logit
+
+    # save mean logits
+    mean_logits_filepath = os.path.join(training_config.model_config.saved_model_dirpath, "mean_logits.pkl")
+    with open(mean_logits_filepath, "w") as f:
+        pickle.dump(mean_logits, f)
 
 
 if __name__ == "__main__":
