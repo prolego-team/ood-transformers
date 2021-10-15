@@ -31,7 +31,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
     """
     Predict and return the output of the penultimate layer
     """
-    def __init__(self, model_config, class_list, mean_logits: Dict[np.ndarray]):
+    def __init__(self, model_config, class_list, mean_logits: Dict[str, np.ndarray]):
         super().__init__(model_config, class_list)
         self.mean_logits = mean_logits
 
@@ -75,7 +75,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
         mean_logits_array = np.array([self.mean_logits[k] for k in self.class_list])
         distances = []
         for logit in logits:
-            distances += np.linalg.norm(mean_logits_array - logit, axis=1)
+            distances += [np.linalg.norm(mean_logits_array - logit, axis=1)]
 
         if type(threshold) == float:
             threshold = [threshold] * len(self.class_list)
@@ -102,7 +102,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
             distance_function=euclidean_distance_function
         ):
         self.distance_function = distance_function
-        super().__call__(examples, max_length, threshold)
+        return super().__call__(examples, max_length, threshold)
 
 
     # def confidences_to_predicted_labels(
