@@ -2,9 +2,16 @@
 utilities for interacting with publically available datasets
 """
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
+import random
 
 from nltk.corpus import reuters
+from nltk.corpus.reader.chasen import test
+
+from text_classification.dataset_utils import (
+    InputMultilabelExample,
+    dictionaries_to_input_multilabel_examples
+)
 
 
 def clean_text_string(text: str) -> str:
@@ -48,3 +55,29 @@ def reuters_dataset_dictionaries(categories: Optional[List[str]]) -> List[dict]:
 
 def reuters_class_labels() -> List[str]:
     return reuters.categories()
+
+
+def reuters_dataset_to_train_test_examples(
+        categories: Optional[List[str]],
+        shuffle_train_examples: bool = False,
+        seed: int = 12345) -> Tuple[InputMultilabelExample, InputMultilabelExample]:
+    """
+    Create lists of train and test examples for the reuters dataset
+    If shuffle_train_examples is true, shuffle the order of training examples (set seed
+       using the seed argument)
+    """
+    reuters_data = reuters_dataset_dictionaries(categories=categories)
+    train_examples = dictionaries_to_input_multilabel_examples(
+        [d for d in reuters_data if d["is_train"]],
+        False
+    )
+    test_examples = dictionaries_to_input_multilabel_examples(
+        [d for d in reuters_data if not d["is_train"]],
+        False
+    )
+
+    if shuffle_train_examples:
+        random.seed(seed)
+        random.shuffle(train_examples)
+
+    return train_examples, test_examples

@@ -2,9 +2,10 @@
 Train a multi-label classifier to classify the Reuters data by topics
 """
 
-import random
+import os
 
 import click
+import pickle
 
 from text_classification import (
     configs,
@@ -14,8 +15,9 @@ from text_classification import (
 )
 from nlp_datasets import (
     TOP_FIVE_CATEGORIES,
-    reuters_dataset_dictionaries
+    reuters_dataset_to_train_test_examples
 )
+import openmax
 
 
 RANDOM_SEED = 12345
@@ -55,16 +57,11 @@ def main(**kwargs):
     TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
 
     # read data and create train/test examples
-    reuters_data = reuters_dataset_dictionaries(categories=TOP_FIVE_CATEGORIES)
-    train_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
-        [d for d in reuters_data if d["is_train"]],
-        False)
-    test_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
-        [d for d in reuters_data if not d["is_train"]],
-        False)
-    # shuffle training examples
-    random.seed(RANDOM_SEED)
-    random.shuffle(train_examples)
+    train_examples, test_examples = reuters_dataset_to_train_test_examples(
+        categories=TOP_FIVE_CATEGORIES,
+        shuffle_train_examples=True,
+        seed=RANDOM_SEED
+    )
 
     # train_examples = train_examples[:100]
     # test_examples = test_examples[:100]
@@ -112,6 +109,12 @@ def main(**kwargs):
     inference_config = configs.InferenceConfig(
         trained_model_config, TOP_FIVE_CATEGORIES, TRAINING_ARGUMENTS["block_size"])
     configs.save_config_for_inference(inference_config, kwargs["inference_config_filepath"])
+
+    # construct mean vectors from training examples and save
+    mean_logits = openmax.examples_to_mean_logits(train_examples, inference_config)
+    mean_logits_filepath = os.path.join(training_config.model_config.saved_model_dirpath, "mean_logits.pkl")
+    with open(mean_logits_filepath, "wb") as f:
+        pickle.dump(mean_logits, f)
 
 
 if __name__ == "__main__":
