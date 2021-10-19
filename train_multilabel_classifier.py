@@ -3,7 +3,6 @@ Train a multi-label classifier to classify the Reuters data by topics
 """
 
 import os
-import random
 
 import click
 import pickle
@@ -16,7 +15,7 @@ from text_classification import (
 )
 from nlp_datasets import (
     TOP_FIVE_CATEGORIES,
-    reuters_dataset_dictionaries
+    reuters_dataset_to_train_test_examples
 )
 import openmax
 
@@ -58,16 +57,11 @@ def main(**kwargs):
     TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
 
     # read data and create train/test examples
-    reuters_data = reuters_dataset_dictionaries(categories=TOP_FIVE_CATEGORIES)
-    train_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
-        [d for d in reuters_data if d["is_train"]],
-        False)
-    test_examples = dataset_utils.dictionaries_to_input_multilabel_examples(
-        [d for d in reuters_data if not d["is_train"]],
-        False)
-    # shuffle training examples
-    random.seed(RANDOM_SEED)
-    random.shuffle(train_examples)
+    train_examples, test_examples = reuters_dataset_to_train_test_examples(
+        categories=TOP_FIVE_CATEGORIES,
+        shuffle_train_examples=True,
+        seed=RANDOM_SEED
+    )
 
     # train_examples = train_examples[:100]
     # test_examples = test_examples[:100]
