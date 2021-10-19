@@ -4,13 +4,14 @@ A. Bendale, T. Boult “[Towards Open Set Deep Networks](http://vast.uccs.edu/~a
 IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2016
 """
 
-from typing import List, Union, Tuple, Dict
+from typing import List, Union, Tuple, Dict, Callable
 import shutil
 from tempfile import mkdtemp
 
 import numpy as np
 import torch
 from transformers.training_args import TrainingArguments
+from sklearn.metrics import roc_auc_score
 
 from text_classification import inference_utils
 from text_classification import dataset_utils, model_utils, configs
@@ -31,9 +32,15 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
     """
     Predict and return the output of the penultimate layer
     """
-    def __init__(self, model_config, class_list, mean_logits: Dict[str, np.ndarray]):
+    def __init__(
+            self,
+            model_config,
+            class_list,
+            mean_logits: Dict[str, np.ndarray],
+            distance_function: Callable = euclidean_distance_function) -> None:
         super().__init__(model_config, class_list)
         self.mean_logits = mean_logits
+        self.distance_function = distance_function
 
     def predict_proba(self, test_dataset: dataset_utils.MultilabelDataset) -> np.ndarray:
         """
@@ -98,10 +105,8 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
             self,
             examples,
             max_length,
-            threshold,
-            distance_function=euclidean_distance_function
+            threshold
         ):
-        self.distance_function = distance_function
         return super().__call__(examples, max_length, threshold)
 
 
