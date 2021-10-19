@@ -27,8 +27,8 @@ def main(**kwargs):
     train_examples, test_examples = reuters_dataset_to_train_test_examples(
         categories=inference_config.class_labels,
         shuffle_train_examples=False)
-    train_examples = train_examples[:100]
-    test_examples = test_examples[:100]
+    # train_examples = train_examples[:100]
+    # test_examples = test_examples[:100]
 
     # Build predictors
     multilabel_predictor = inference_utils.MultilabelPredictor(
