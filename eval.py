@@ -2,18 +2,28 @@
 Evaluation utilities for Openset-NLP experiments
 """
 
-from typing import Tuple
-from numpy import positive
+from typing import Callable, Tuple, List
 
 from sklearn.metrics import roc_auc_score
 
+from text_classification.dataset_utils import (
+    InputMultilabelExample,
+    OutputMultilabelExample
+)
+
 
 def incorrect_prediction_aucs(
-        test_examples,
-        prediction_examples,
-        positive_class_test,
-        negative_class_test) -> Tuple[float, float]:
+        test_examples: List[InputMultilabelExample],
+        prediction_examples: List[OutputMultilabelExample],
+        positive_class_test: Callable[[float], bool],
+        negative_class_test: Callable[[float], bool]) -> Tuple[float, float]:
     """
+    Compute AUCs to determine how well we can distiguish between correct
+    vs. incorrect predictions using the associated confidences.
+
+    positive/negative_class_test is the test applied to a specific
+    confidence score to determine whether it is a member of the positive/
+    negative class
     """
     # sort confidences into buckets:
         # - positive class, correct label
