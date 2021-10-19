@@ -127,7 +127,8 @@ def examples_to_mean_logit(
     # run inference to extract logits
     predictor = OpenMaxPredictor(
         inference_config.model_config,
-        inference_config.class_labels)
+        inference_config.class_labels,
+        mean_logits={})
     dataset = predictor.create_dataset(examples, inference_config.max_length)
     logits = predictor.predict_proba(dataset)
     return np.mean(logits, axis=0)
