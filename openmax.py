@@ -139,6 +139,22 @@ def examples_to_mean_logit(
     return np.mean(logits, axis=0)
 
 
+def examples_to_mean_logits(
+    examples: List[dataset_utils.InputMultilabelExample],
+    inference_config: configs.InferenceConfig) -> Dict[str, np.ndarray]:
+    """
+    run inference to extract logits for each example
+    construct dictionary of mean logits for each category
+    """
+
+    mean_logits = {}
+    for class_label in inference_config.class_labels:
+        class_examples = [e for e in examples if class_label in e.labels]
+        class_mean_logit = examples_to_mean_logit(class_examples, inference_config)
+        mean_logits[class_label] = class_mean_logit
+    return mean_logits
+
+
 def derive_confidence_threshold(
         examples: List[dataset_utils.InputMultilabelExample],
         wrapped_predictor,

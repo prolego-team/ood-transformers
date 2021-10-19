@@ -110,14 +110,8 @@ def main(**kwargs):
         trained_model_config, TOP_FIVE_CATEGORIES, TRAINING_ARGUMENTS["block_size"])
     configs.save_config_for_inference(inference_config, kwargs["inference_config_filepath"])
 
-    # construct mean vectors from training examples
-    mean_logits = {}
-    for class_label in TOP_FIVE_CATEGORIES:
-        class_examples = [e for e in train_examples if class_label in e.labels]
-        class_mean_logit = openmax.examples_to_mean_logit(class_examples, inference_config)
-        mean_logits[class_label] = class_mean_logit
-
-    # save mean logits
+    # construct mean vectors from training examples and save
+    mean_logits = openmax.examples_to_mean_logits(train_examples, inference_config)
     mean_logits_filepath = os.path.join(training_config.model_config.saved_model_dirpath, "mean_logits.pkl")
     with open(mean_logits_filepath, "wb") as f:
         pickle.dump(mean_logits, f)

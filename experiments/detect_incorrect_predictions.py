@@ -35,9 +35,8 @@ def main(**kwargs):
         inference_config.model_config,
         inference_config.class_labels
     )
-    # TODO: add method to compute mean logits from training examples
-    with open("trained/mean_logits.pkl", "rb") as f:
-        mean_logits = pickle.load(f)
+    mean_logits = openmax.examples_to_mean_logits(
+        train_examples, inference_config)
     openmax_predictor = openmax.OpenMaxPredictor(
         inference_config.model_config,
         inference_config.class_labels,
