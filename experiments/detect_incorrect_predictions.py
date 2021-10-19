@@ -41,7 +41,7 @@ def main(**kwargs):
         inference_config.model_config,
         inference_config.class_labels,
         mean_logits=mean_logits,
-        distance_function=openmax.euclidean_distance_function
+        distance_function=openmax.euclidean_distance_function  # TODO: test out other distance functions
     )
 
     # Use training data to derive thresholds for classification
