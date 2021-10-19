@@ -137,3 +137,38 @@ def examples_to_mean_logit(
     dataset = predictor.create_dataset(examples, inference_config.max_length)
     logits = predictor.predict_proba(dataset)
     return np.mean(logits, axis=0)
+
+
+def derive_confidence_threshold(
+        examples: List[dataset_utils.InputMultilabelExample],
+        wrapped_predictor,
+        positive_class_percentile: int = 5,
+        negative_class_percentile: int = 95) -> float:
+    """
+    """
+    # run examples through predictor
+    predicted_examples = wrapped_predictor(
+        examples
+    )
+
+    # separate confidences into positive and negative classes
+    positive_confidences = []
+    negative_confidences = []
+    for predicted_example, example in zip(predicted_examples, examples):
+        for confidence, label in zip(predicted_example.confidences,
+                                     predicted_example.labels):
+            if label in example.labels:
+                # positive
+                positive_confidences.append(confidence)
+            else:
+                # negative
+                negative_confidences.append(confidence)
+
+    # compute percentiles
+    positive_percentile = np.percentile(
+        positive_confidences, positive_class_percentile)
+    negative_percentile = np.percentile(
+        negative_confidences, negative_class_percentile)
+
+    # return the average
+    return (positive_percentile + negative_percentile) * 0.5
