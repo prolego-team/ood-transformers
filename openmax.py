@@ -13,8 +13,12 @@ import torch
 from transformers.training_args import TrainingArguments
 from sklearn.metrics import roc_auc_score
 
-from text_classification import inference_utils
-from text_classification import dataset_utils, model_utils, configs
+from text_classification import inference_utils, model_utils, configs
+from text_classification.dataset_utils import (
+    InputMultilabelExample,
+    OutputMultilabelExample,
+    MultilabelDataset
+)
 
 
 def euclidean_distance_function(logits, mean_logits):
@@ -42,7 +46,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
         self.mean_logits = mean_logits
         self.distance_function = distance_function
 
-    def predict_proba(self, test_dataset: dataset_utils.MultilabelDataset) -> np.ndarray:
+    def predict_proba(self, test_dataset: MultilabelDataset) -> np.ndarray:
         """
         override predict_proba from MultilabelPredictor to return
         logits
@@ -122,7 +126,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
 
 
 def examples_to_mean_logit(
-        examples: List[dataset_utils.InputMultilabelExample],
+        examples: List[InputMultilabelExample],
         inference_config: configs.InferenceConfig) -> np.ndarray:
     """
     run inference to extract logits for examples,
@@ -140,7 +144,7 @@ def examples_to_mean_logit(
 
 
 def examples_to_mean_logits(
-    examples: List[dataset_utils.InputMultilabelExample],
+    examples: List[InputMultilabelExample],
     inference_config: configs.InferenceConfig) -> Dict[str, np.ndarray]:
     """
     run inference to extract logits for each example
@@ -156,11 +160,15 @@ def examples_to_mean_logits(
 
 
 def derive_confidence_threshold(
-        examples: List[dataset_utils.InputMultilabelExample],
-        wrapped_predictor,
+        examples: List[InputMultilabelExample],
+        wrapped_predictor: Callable[[List[InputMultilabelExample]],
+                                    List[OutputMultilabelExample]],
         positive_class_percentile: int = 5,
         negative_class_percentile: int = 95) -> float:
     """
+    Identify a threshold on confidence values to determine
+    whether an example should be classified as a member of the positive
+    class.
     """
     # run examples through predictor
     predicted_examples = wrapped_predictor(
