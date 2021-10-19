@@ -4,14 +4,14 @@ and display some metrics
 """
 
 
-
-
 import click
 
-from text_classification import configs, inference_utils
-from text_classification import dataset_utils
-from text_classification import eval_utils
-from unit_tests.conftest import class_labels
+from text_classification import (
+    configs,
+    inference_utils,
+    dataset_utils,
+    eval_utils
+)
 
 from nlp_datasets import reuters_dataset_dictionaries, TOP_FIVE_CATEGORIES
 
