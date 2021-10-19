@@ -27,19 +27,19 @@ def incorrect_prediction_aucs(
     for test_example, pred_example in zip(test_examples, prediction_examples):
         for confidence, label in zip(pred_example.confidences, pred_example.labels):
             if label in test_example.labels:
-                # positive
                 if positive_class_test(confidence):
-                    # correct
+                    # positive correct
                     positive_correct.append(confidence)
                 else:
-                    positive_incorrect.append(confidence)
+                    # negative incorrect
+                    negative_incorrect.append(confidence)
             else:
-                # negative
                 if negative_class_test(confidence):
-                    # correct
+                    # negative correct
                     negative_correct.append(confidence)
                 else:
-                    negative_incorrect.append(confidence)
+                    # positive incorrect
+                    positive_incorrect.append(confidence)
 
     # compute positive class AUC
     y_score = positive_correct + positive_incorrect
