@@ -125,7 +125,7 @@ def main(**kwargs):
 
     # save mean logits
     mean_logits_filepath = os.path.join(training_config.model_config.saved_model_dirpath, "mean_logits.pkl")
-    with open(mean_logits_filepath, "w") as f:
+    with open(mean_logits_filepath, "wb") as f:
         pickle.dump(mean_logits, f)
 
 
