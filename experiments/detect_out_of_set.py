@@ -124,9 +124,9 @@ def main(**kwargs):
 
     # print results
     print("Reuters")
-    pprint.pprint(reuters_aucs)
+    pprint(reuters_aucs)
     print("Movie Reviews")
-    pprint.pprint(movies_aucs)
+    pprint(movies_aucs)
 
 
 if __name__ == "__main__":
