@@ -69,7 +69,8 @@ def out_of_set_aucs(
         out_of_set_prediction_examples: List[OutputMultilabelExample],
         positive_class_test: Callable[[float], bool],
         negative_class_test: Callable[[float], bool],
-        save_plots: bool = False) -> Tuple[float, float]:
+        save_plots: bool = False,
+        filename_prefix: str = "") -> Tuple[float, float]:
     """
     Compute AUCs to determine how well we can distinguish between in-set
     vs. out-of-set (oos) examples using the associated confidences.
@@ -111,12 +112,12 @@ def out_of_set_aucs(
         # positive class
         confidences = [in_set_positive, oos_positive]
         labels = ["in-set" "out-of-set"]
-        out_filepath = "experiments/detect-oos-positive.png"
+        out_filepath = "experiments/" + filename_prefix + "detect-oos-positive.png"
         confidence_histograms(confidences, labels, out_filepath)
         # negative class
         confidences = [in_set_negative, oos_negative]
         labels = ["in-set", "out-of-set"]
-        out_filepath = "experiments/detect-oos-negative.png"
+        out_filepath = "experiments/" + filename_prefix + "detect-oos-negative.png"
         confidence_histograms(confidences, labels, out_filepath)
 
     return positive_class_auc, negative_class_auc
