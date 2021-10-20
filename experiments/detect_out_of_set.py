@@ -4,6 +4,8 @@ Hypothesis:
    of distinguishing between in-set and out-of-set examples.
 """
 
+# TODO: add Twitter data
+
 import click
 
 from text_classification import configs
@@ -41,6 +43,8 @@ def main(**kwargs):
     oos_train = [e for e in train_examples if not contains_class_label(e)]
     oos_test = [e for e in test_examples if not contains_class_label(e)]
     reuters_out_of_set_examples = oos_train + oos_test
+
+    # Load Twitter data
 
     # Build wrapped predictors
     out = experiment_utils.build_wrapped_predictors(

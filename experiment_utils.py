@@ -17,8 +17,8 @@ def build_wrapped_predictors(
         inference_config,
         train_examples,
         openmax_distance_function: Callable = openmax.euclidean_distance_function
-    ) -> Tuple[Callable[[List[InputMultilabelExample], List[OutputMultilabelExample]]],
-               Callable[[List[InputMultilabelExample], List[OutputMultilabelExample]]]]:
+    ) -> Tuple[Callable[[List[InputMultilabelExample]], List[OutputMultilabelExample]],
+               Callable[[List[InputMultilabelExample]], List[OutputMultilabelExample]]]:
     """
     Construct wrapped multilabel predictor and openmax predictor
     Note: train_examples are used to compute mean logits for openmax predictor
