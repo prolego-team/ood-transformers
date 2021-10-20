@@ -49,7 +49,7 @@ def main(**kwargs):
     # Build wrapped predictors
     out = experiment_utils.build_wrapped_predictors(
         inference_config,
-        train_examples,
+        in_set_train_examples,
         openmax_distance_function=openmax.euclidean_distance_function
     )
     wrapped_multilabel_predictor, wrapped_openmax_predictor = out
@@ -59,14 +59,14 @@ def main(**kwargs):
     upper_bound_confidence = 95
 
     sigmoid_confidence_threshold = openmax.derive_confidence_threshold(
-        train_examples,
+        in_set_train_examples,
         wrapped_multilabel_predictor,
         lower_bound_confidence,
         upper_bound_confidence
     )
 
     distance_confidence_threshold = openmax.derive_confidence_threshold(
-        train_examples,
+        in_set_train_examples,
         wrapped_openmax_predictor,
         upper_bound_confidence,
         lower_bound_confidence
