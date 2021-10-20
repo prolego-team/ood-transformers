@@ -80,13 +80,13 @@ def main(**kwargs):
     print("   Positive")
     print("   ", round(sigmoid_positive_auc, 2))
     print("   Negative")
-    print("   ", round(sigmoid_negative_auc))
+    print("   ", round(sigmoid_negative_auc, 2))
     print()
     print("OpenMax Distance")
     print("   Positive")
     print("   ", round(distance_positive_auc, 2))
     print("   Negative")
-    print("   ", round(distance_negative_auc))
+    print("   ", round(distance_negative_auc, 2))
     print()
 
 
