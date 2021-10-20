@@ -117,7 +117,7 @@ def out_of_set_aucs(
     if save_plots:
         # positive class
         confidences = [in_set_positive, oos_positive]
-        labels = ["in-set" "out-of-set"]
+        labels = ["in-set", "out-of-set"]
         out_filepath = "experiments/" + filename_prefix + "detect-oos-positive.png"
         confidence_histograms(confidences, labels, out_filepath)
         # negative class
