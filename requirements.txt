@@ -1,3 +1,4 @@
 click==8.0.3
+matplotlib==3.4.3
 nltk==3.6.5
 pytest==6.2.5

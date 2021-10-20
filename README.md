@@ -38,9 +38,10 @@ Clone the text-classification repo within openset-nlp:
 
 ### Data
 
-We will use the Reuters ModApte dataset, which is available for download using nltk:
+We will use the Reuters ModApte dataset and the Movie Reviews dataset, both of which are available for download using nltk:
 
         python
         import nltk
 
         nltk.download("reuters")
+        nltk.download("movie_reviews")
