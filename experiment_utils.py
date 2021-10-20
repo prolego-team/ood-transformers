@@ -49,7 +49,7 @@ def build_wrapped_predictors(
     return wrapped_multilabel_predictor, wrapped_openmax_predictor
 
 
-def compute_auc(y_true, y_score):
+def compute_auc(y_true: List[float], y_score: List[float]) -> float:
     """
     compute AUC, requiring AUC to always be > 0.5
     """

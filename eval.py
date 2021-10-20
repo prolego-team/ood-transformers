@@ -98,12 +98,6 @@ def out_of_set_aucs(
     in_set_positive, in_set_negative = group_confidences(in_set_prediction_examples)
     oos_positive, oos_negative = group_confidences(out_of_set_prediction_examples)
 
-    print("number of examples:")
-    print("in-set positive", len(in_set_positive))
-    print("out-of-set positive", len(oos_positive))
-    print("in-set negative", len(in_set_negative))
-    print("out-of-set negative", len(oos_negative))
-
     # compute positive class AUC
     y_score = oos_positive + in_set_positive
     y_true = [0] * len(oos_positive) + [1] * len(in_set_positive)
