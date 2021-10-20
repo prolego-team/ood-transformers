@@ -4,7 +4,8 @@ Hypothesis:
    of distinguishing between in-set and out-of-set examples.
 """
 
-# TODO: add Twitter data
+
+from pprint import pprint
 
 import click
 
@@ -14,7 +15,11 @@ from text_classification.dataset_utils import InputMultilabelExample
 import experiment_utils
 import openmax
 import eval
-from nlp_datasets import reuters_dataset_to_train_test_examples
+from nlp_datasets import (
+    reuters_dataset_to_train_test_examples,
+    movie_reviews_dataset_to_examples
+)
+
 
 @click.command()
 @click.argument("inference_config_filepath", type=click.Path(exists=True))
@@ -44,7 +49,9 @@ def main(**kwargs):
     oos_test = [e for e in test_examples if not contains_class_label(e)]
     reuters_out_of_set_examples = oos_train + oos_test
 
-    # Load Twitter data
+    # Load movie reviews data
+    movie_reviews_examples = movie_reviews_dataset_to_examples(
+        categories=inference_config.class_labels)
 
     # Build wrapped predictors
     out = experiment_utils.build_wrapped_predictors(
@@ -80,38 +87,46 @@ def main(**kwargs):
     in_set_distance_examples = wrapped_openmax_predictor(in_set_test_examples)
     reuters_oos_sigmoid_examples = wrapped_multilabel_predictor(reuters_out_of_set_examples)
     reuters_oos_distance_examples = wrapped_openmax_predictor(reuters_out_of_set_examples)
+    movies_oos_sigmoid_examples = wrapped_multilabel_predictor(movie_reviews_examples)
+    movies_oos_distance_examples = wrapped_openmax_predictor(movie_reviews_examples)
 
     # Compute AUCs for in-set vs. out-of-set examples
-    sigmoid_positive_auc, sigmoid_negative_auc = eval.out_of_set_aucs(
-        in_set_sigmoid_examples,
-        reuters_oos_sigmoid_examples,
-        lambda confidence: confidence >= sigmoid_confidence_threshold,
-        lambda confidence: confidence < sigmoid_confidence_threshold,
-        save_plots=True,
-        filename_prefix="sigmoid-"
-    )
-    distance_positive_auc, distance_negative_auc = eval.out_of_set_aucs(
-        in_set_distance_examples,
-        reuters_oos_distance_examples,
-        lambda confidence: confidence <= distance_confidence_threshold,
-        lambda confidence: confidence > distance_confidence_threshold,
-        save_plots=True,
-        filename_prefix="distance-"
-    )
+    def auc_helper(
+            out_of_set_sigmoid_examples,
+            out_of_set_distance_examples,
+            filename_prefix):
+        # sigmoid
+        sigmoid_positive_auc, sigmoid_negative_auc = eval.out_of_set_aucs(
+            in_set_sigmoid_examples,
+            out_of_set_sigmoid_examples,
+            lambda confidence: confidence >= sigmoid_confidence_threshold,
+            lambda confidence: confidence < sigmoid_confidence_threshold,
+            save_plots=True,
+            filename_prefix=filename_prefix + "-sigmoid-"
+        )
+        # distance
+        distance_positive_auc, distance_negative_auc = eval.out_of_set_aucs(
+            in_set_distance_examples,
+            out_of_set_distance_examples,
+            lambda confidence: confidence <= distance_confidence_threshold,
+            lambda confidence: confidence > distance_confidence_threshold,
+            save_plots=True,
+            filename_prefix=filename_prefix + "-distance-"
+        )
+        out = {"sigmoid": {"positive": sigmoid_positive_auc,
+                           "negative": sigmoid_negative_auc},
+               "distance": {"positive": distance_positive_auc,
+                            "negative": distance_negative_auc}}
+        return out
+
+    reuters_aucs = auc_helper(reuters_oos_sigmoid_examples, reuters_oos_distance_examples, "reuters")
+    movies_aucs = auc_helper(movies_oos_sigmoid_examples, movies_oos_distance_examples, "movies")
 
     # print results
-    print("Sigmoid")
-    print("   Positive")
-    print("   ", round(sigmoid_positive_auc, 2))
-    print("   Negative")
-    print("   ", round(sigmoid_negative_auc, 2))
-    print()
-    print("OpenMax Distance")
-    print("   Positive")
-    print("   ", round(distance_positive_auc, 2))
-    print("   Negative")
-    print("   ", round(distance_negative_auc, 2))
-    print()
+    print("Reuters")
+    pprint.pprint(reuters_aucs)
+    print("Movie Reviews")
+    pprint.pprint(movies_aucs)
 
 
 if __name__ == "__main__":
