@@ -66,13 +66,17 @@ def main(**kwargs):
         test_examples,
         sigmoid_confidence_examples,
         lambda confidence: confidence >= sigmoid_confidence_threshold,
-        lambda confidence: confidence < sigmoid_confidence_threshold
+        lambda confidence: confidence < sigmoid_confidence_threshold,
+        save_plots=True,
+        filename_prefix="sigmoid-"
     )
     distance_positive_auc, distance_negative_auc = incorrect_prediction_aucs(
         test_examples,
         distance_confidence_examples,
         lambda confidence: confidence <= distance_confidence_threshold,
-        lambda confidence: confidence > distance_confidence_threshold
+        lambda confidence: confidence > distance_confidence_threshold,
+        save_plots=True,
+        filename_prefix="sigmoid"
     )
 
     # print results

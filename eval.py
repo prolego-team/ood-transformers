@@ -16,7 +16,9 @@ def incorrect_prediction_aucs(
         test_examples: List[InputMultilabelExample],
         prediction_examples: List[OutputMultilabelExample],
         positive_class_test: Callable[[float], bool],
-        negative_class_test: Callable[[float], bool]) -> Tuple[float, float]:
+        negative_class_test: Callable[[float], bool],
+        save_plots: bool = False,
+        filename_prefix: str = "") -> Tuple[float, float]:
     """
     Compute AUCs to determine how well we can distiguish between correct
     vs. incorrect predictions using the associated confidences.
@@ -60,6 +62,18 @@ def incorrect_prediction_aucs(
     y_score = negative_correct + negative_incorrect
     y_true = [0] * len(negative_correct) + [1] * len(negative_incorrect)
     negative_class_auc = compute_auc(y_true, y_score)
+
+    if save_plots:
+        # positive class
+        confidences = [positive_correct, positive_incorrect]
+        labels = ["correct", "incorrect"]
+        out_filepath = "experiments/" + filename_prefix + "detect-incorrect-positive.png"
+        confidence_histograms(confidences, labels, out_filepath)
+        # negative class
+        confidences = [negative_correct, negative_incorrect]
+        labels = ["correct", "incorrect"]
+        out_filepath = "experiments/" + filename_prefix + "detect-incorrect-negative.png"
+        confidence_histograms(confidences, labels, out_filepath)
 
     return positive_class_auc, negative_class_auc
 
