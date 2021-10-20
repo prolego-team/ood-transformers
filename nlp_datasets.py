@@ -5,8 +5,7 @@ utilities for interacting with publically available datasets
 from typing import List, Optional, Tuple
 import random
 
-from nltk.corpus import reuters
-from nltk.corpus.reader.chasen import test
+from nltk.corpus import reuters, movie_reviews
 
 from text_classification.dataset_utils import (
     InputMultilabelExample,
@@ -60,7 +59,8 @@ def reuters_class_labels() -> List[str]:
 def reuters_dataset_to_train_test_examples(
         categories: Optional[List[str]],
         shuffle_train_examples: bool = False,
-        seed: int = 12345) -> Tuple[InputMultilabelExample, InputMultilabelExample]:
+        seed: int = 12345
+    ) -> Tuple[List[InputMultilabelExample], List[InputMultilabelExample]]:
     """
     Create lists of train and test examples for the reuters dataset
     If shuffle_train_examples is true, shuffle the order of training examples (set seed
@@ -81,3 +81,38 @@ def reuters_dataset_to_train_test_examples(
         random.shuffle(train_examples)
 
     return train_examples, test_examples
+
+
+def movie_reviews_dataset_dictionaries(categories: Optional[List[str]]) -> List[dict]:
+    """
+    Convert the movie reviews dataset from nltk to a list of dictionaries
+    with keys "text" and "labels".
+    If categories are provided, modify labels to contain only those categories.
+    Assumes the movie_reviews dataset has already been downloaded (see README.md).
+    """
+
+    document_ids = movie_reviews.fileids()
+    out = []
+    for document_id in document_ids:
+        text = clean_text_string(movie_reviews.raw(document_id))
+        labels = movie_reviews.categories(document_id)
+        if categories:
+            labels = [l for l in labels if l in categories]
+        out.append({"guid": document_id,
+                    "text": text,
+                    "labels": labels})
+    return out
+
+
+def movie_reviews_dataset_to_examples(
+        categories: Optional[List[str]],
+    ) -> List[InputMultilabelExample]:
+    """
+    Create lists of examples for movie reviews dataset
+    """
+    movie_reviews_data = movie_reviews_dataset_dictionaries(categories=categories)
+    examples = dictionaries_to_input_multilabel_examples(
+        movie_reviews_data,
+        False
+    )
+    return examples
