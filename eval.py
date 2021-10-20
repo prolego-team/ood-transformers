@@ -90,7 +90,7 @@ def out_of_set_aucs(
                 if positive_class_test(confidence):
                     positive_class_confidences.append(confidence)
                 elif negative_class_test(confidence):
-                    negative_class_confidences.appned(confidence)
+                    negative_class_confidences.append(confidence)
         return positive_class_confidences, negative_class_confidences
 
     in_set_positive, in_set_negative = group_confidences(in_set_prediction_examples)
