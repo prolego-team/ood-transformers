@@ -1,18 +1,18 @@
 """
 Hypothesis:
    Different strategies for scoring predictions have different efficacies
-   of distinguishing between correct predictions and incorrect predictions.
+   of distinguishing between in-set and out-of-set examples.
 """
 
 import click
 
 from text_classification import configs
+from text_classification.dataset_utils import InputMultilabelExample
 
-from nlp_datasets import reuters_dataset_to_train_test_examples
-import openmax
-from eval import incorrect_prediction_aucs
 import experiment_utils
-
+import openmax
+import eval
+from nlp_datasets import reuters_dataset_to_train_test_examples
 
 @click.command()
 @click.argument("inference_config_filepath", type=click.Path(exists=True))
@@ -21,12 +21,26 @@ def main(**kwargs):
     # Read inference config
     inference_config = configs.read_config_for_inference(kwargs["inference_config_filepath"])
 
-    # Load data, split into train/test
+    # Load reuters data, split into train/test/out-of-set
+    def contains_class_label(example: InputMultilabelExample) -> bool:
+        """
+        Returns True if at least one of the example labels is in the
+        list of class_labels for the inference_config.
+        Returns False otherwise.
+        """
+        for label in example.labels:
+            if label in inference_config.class_labels:
+                return True
+        return False
+
     train_examples, test_examples = reuters_dataset_to_train_test_examples(
-        categories=inference_config.class_labels,
+        categories=None,
         shuffle_train_examples=False)
-    # train_examples = train_examples[:10]
-    # test_examples = test_examples[:10]
+    in_set_train_examples = [e for e in train_examples if contains_class_label(e)]
+    in_set_test_examples = [e for e in test_examples if contains_class_label(e)]
+    oos_train = [e for e in train_examples if not contains_class_label(e)]
+    oos_test = [e for e in test_examples if not contains_class_label(e)]
+    reuters_out_of_set_examples = oos_train + oos_test
 
     # Build wrapped predictors
     out = experiment_utils.build_wrapped_predictors(
@@ -57,20 +71,22 @@ def main(**kwargs):
     print("sigma", sigmoid_confidence_threshold)
     print("distance", distance_confidence_threshold)
 
-    # Perform inference on test data
-    sigmoid_confidence_examples = wrapped_multilabel_predictor(test_examples)
-    distance_confidence_examples = wrapped_openmax_predictor(test_examples)
+    # Perform inference on in-set and out-of-set (oos) test data
+    in_set_sigmoid_examples = wrapped_multilabel_predictor(in_set_test_examples)
+    in_set_distance_examples = wrapped_openmax_predictor(in_set_test_examples)
+    reuters_oos_sigmoid_examples = wrapped_multilabel_predictor(reuters_out_of_set_examples)
+    reuters_oos_distance_examples = wrapped_openmax_predictor(reuters_out_of_set_examples)
 
-    # compute AUCs for each
-    sigmoid_positive_auc, sigmoid_negative_auc = incorrect_prediction_aucs(
-        test_examples,
-        sigmoid_confidence_examples,
+    # Compute AUCs for in-set vs. out-of-set examples
+    sigmoid_positive_auc, sigmoid_negative_auc = eval.out_of_set_aucs(
+        in_set_sigmoid_examples,
+        reuters_oos_sigmoid_examples,
         lambda confidence: confidence >= sigmoid_confidence_threshold,
         lambda confidence: confidence < sigmoid_confidence_threshold
     )
-    distance_positive_auc, distance_negative_auc = incorrect_prediction_aucs(
-        test_examples,
-        distance_confidence_examples,
+    distance_positive_auc, distance_negative_auc = eval.out_of_set_aucs(
+        in_set_distance_examples,
+        reuters_oos_distance_examples,
         lambda confidence: confidence <= distance_confidence_threshold,
         lambda confidence: confidence > distance_confidence_threshold
     )
