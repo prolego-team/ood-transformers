@@ -68,7 +68,8 @@ def out_of_set_aucs(
         in_set_prediction_examples: List[OutputMultilabelExample],
         out_of_set_prediction_examples: List[OutputMultilabelExample],
         positive_class_test: Callable[[float], bool],
-        negative_class_test: Callable[[float], bool]) -> Tuple[float, float]:
+        negative_class_test: Callable[[float], bool],
+        save_plots: bool = False) -> Tuple[float, float]:
     """
     Compute AUCs to determine how well we can distinguish between in-set
     vs. out-of-set (oos) examples using the associated confidences.
@@ -106,4 +107,31 @@ def out_of_set_aucs(
     y_true = [0] * len(oos_negative) + [1] * len(in_set_negative)
     negative_class_auc = compute_auc(y_true, y_score)
 
+    if save_plots:
+        # positive class
+        confidences = [in_set_positive, oos_positive]
+        labels = ["in-set" "out-of-set"]
+        out_filepath = "experiments/detect-oos-positive.png"
+        confidence_histograms(confidences, labels, out_filepath)
+        # negative class
+        confidences = [in_set_negative, oos_negative]
+        labels = ["in-set", "out-of-set"]
+        out_filepath = "experiments/detect-oos-negative.png"
+        confidence_histograms(confidences, labels, out_filepath)
+
     return positive_class_auc, negative_class_auc
+
+
+def confidence_histograms(
+        confidences: List[List[float]],
+        labels: List[str],
+        out_filepath: str) -> None:
+    """
+    generate overlapping histograms of confidences and save to out_filepath
+    """
+    from matplotlib import pyplot as plt
+    plt.figure(figsize=(8, 6))
+    for confidence, label in zip(confidences, labels):
+        plt.hist(confidence, label=label, density=True, alpha=0.3)
+    plt.legend(loc="upper right")
+    plt.savefig(out_filepath)

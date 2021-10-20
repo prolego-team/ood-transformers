@@ -86,13 +86,15 @@ def main(**kwargs):
         in_set_sigmoid_examples,
         reuters_oos_sigmoid_examples,
         lambda confidence: confidence >= sigmoid_confidence_threshold,
-        lambda confidence: confidence < sigmoid_confidence_threshold
+        lambda confidence: confidence < sigmoid_confidence_threshold,
+        save_plots=True
     )
     distance_positive_auc, distance_negative_auc = eval.out_of_set_aucs(
         in_set_distance_examples,
         reuters_oos_distance_examples,
         lambda confidence: confidence <= distance_confidence_threshold,
-        lambda confidence: confidence > distance_confidence_threshold
+        lambda confidence: confidence > distance_confidence_threshold,
+        save_plots=True
     )
 
     # print results
