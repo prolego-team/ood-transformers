@@ -76,7 +76,7 @@ def main(**kwargs):
         lambda confidence: confidence <= distance_confidence_threshold,
         lambda confidence: confidence > distance_confidence_threshold,
         save_plots=True,
-        filename_prefix="sigmoid"
+        filename_prefix="sigmoid-"
     )
 
     # print results
