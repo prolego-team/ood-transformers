@@ -68,12 +68,12 @@ def incorrect_prediction_aucs(
         confidences = [positive_correct, positive_incorrect]
         labels = ["correct", "incorrect"]
         out_filepath = "experiments/" + filename_prefix + "detect-incorrect-positive.png"
-        confidence_histograms(confidences, labels, out_filepath)
+        confidence_histograms(confidences, labels, out_filepath, density=True)
         # negative class
         confidences = [negative_correct, negative_incorrect]
         labels = ["correct", "incorrect"]
         out_filepath = "experiments/" + filename_prefix + "detect-incorrect-negative.png"
-        confidence_histograms(confidences, labels, out_filepath)
+        confidence_histograms(confidences, labels, out_filepath, density=True)
 
     return positive_class_auc, negative_class_auc
 
@@ -140,13 +140,14 @@ def out_of_set_aucs(
 def confidence_histograms(
         confidences: List[List[float]],
         labels: List[str],
-        out_filepath: str) -> None:
+        out_filepath: str,
+        density: bool = False) -> None:
     """
     generate overlapping histograms of confidences and save to out_filepath
     """
     from matplotlib import pyplot as plt
     plt.figure(figsize=(8, 6))
     for confidence, label in zip(confidences, labels):
-        plt.hist(confidence, label=label, density=False, alpha=0.3)
+        plt.hist(confidence, label=label, density=density, alpha=0.3)
     plt.legend(loc="upper right")
     plt.savefig(out_filepath)
