@@ -21,7 +21,7 @@ def test_OpenMaxPredictor(
     test that OpenMaxPredictor predicts based on distance threshold
     """
     inference_config = read_config_for_inference("test_data/inference_config.json")
-    mean_logits = {k: np.ones(inference_config.num_labels)
+    mean_logits = {k: [np.ones(inference_config.num_labels)] * 2
                    for k in inference_config.class_labels}
     predictor = openmax.OpenMaxPredictor(
         inference_config.model_config,
