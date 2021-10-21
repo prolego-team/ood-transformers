@@ -100,6 +100,20 @@ def non_member_class_distance(logits, mean_logits):
     return np.array(distances)
 
 
+def rank_distance(logits, mean_logits):
+    from scipy.stats import spearmanr
+    distances = []
+    mean_logits_sort = np.argsort(mean_logits, axis=1)
+    for logit in logits:
+        logit_distances = []
+        logit_sort = np.argsort(logit)
+        for mean_logit in mean_logits_sort:
+            logit_distance = spearmanr(mean_logit, logit_sort).correlation
+            logit_distances.append(logit_distance)
+        distances += [logit_distances]
+    return np.array(distances)
+
+
 class OpenMaxPredictor(inference_utils.MultilabelPredictor):
     """
     Predict and return the output of the penultimate layer
