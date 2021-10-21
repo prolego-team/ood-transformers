@@ -62,7 +62,9 @@ def test_examples_to_mean_logit(
                          [openmax.euclidean_distance_function,
                           openmax.mae_distance_function,
                           openmax.fractional_absolute_distance_function,
-                          openmax.fractional_euclidean_distance_function])
+                          openmax.fractional_euclidean_distance_function,
+                          openmax.non_member_class_distance,
+                          openmax.member_class_distance])
 def test_distance_functions(distance_function) -> None:
     """
     unit tests for distance functions

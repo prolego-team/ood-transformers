@@ -75,6 +75,26 @@ def fractional_euclidean_distance_function(
     return np.array(distances)
 
 
+def member_class_distance(logits, mean_logits):
+    distances = []
+    for logit in logits:
+        member_class_index = np.argmax(logit)
+        member_logit = logit[member_class_index]
+        member_mean_logits = mean_logits[:, member_class_index]
+        distances += [(member_mean_logits - member_logit) ** 2]
+    return np.array(distances)
+
+
+def non_member_class_distance(logits, mean_logits):
+    distances = []
+    for logit in logits:
+        member_class_index = np.argmax(logit)
+        non_member_logit = np.delete(logit, member_class_index)
+        non_member_mean_logits = np.delete(mean_logits, member_class_index, axis=1)
+        distances += [np.linalg.norm(non_member_mean_logits - non_member_logit, axis=1)]
+    return np.array(distances)
+
+
 class OpenMaxPredictor(inference_utils.MultilabelPredictor):
     """
     Predict and return the output of the penultimate layer
