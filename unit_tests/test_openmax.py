@@ -57,3 +57,21 @@ def test_examples_to_mean_logit(
     assert type(mean_logit) == np.ndarray
     assert len(mean_logit) == num_labels
 
+
+@pytest.mark.parametrize("distance_function",
+                         [openmax.euclidean_distance_function,
+                          openmax.mae_distance_function,
+                          openmax.fractional_absolute_distance_function,
+                          openmax.fractional_euclidean_distance_function])
+def test_distance_functions(distance_function) -> None:
+    """
+    unit tests for distance functions
+    """
+
+    n_examples = 10
+    n_classes = 5
+    mean_logits = np.random.random((n_classes, n_classes))
+    logits = np.random.random((n_examples, n_classes))
+    distances = distance_function(logits, mean_logits)
+    assert type(distances) == np.ndarray
+    assert distances.shape == (n_examples, n_classes)
