@@ -89,9 +89,14 @@ def non_member_class_distance(logits, mean_logits):
     distances = []
     for logit in logits:
         member_class_index = np.argmax(logit)
-        non_member_logit = np.delete(logit, member_class_index)
-        non_member_mean_logits = np.delete(mean_logits, member_class_index, axis=1)
-        distances += [np.linalg.norm(non_member_mean_logits - non_member_logit, axis=1)]
+        logit_distances = []
+        for mean_logit in mean_logits:
+            logit_class = np.argmax(mean_logit)
+            non_member_logit = np.delete(logit, [member_class_index, logit_class])
+            non_member_mean_logit = np.delete(mean_logit, [member_class_index, logit_class])
+            logit_distance = np.linalg.norm(non_member_mean_logit - non_member_logit)
+            logit_distances.append(logit_distance)
+        distances += [logit_distances]
     return np.array(distances)
 
 
