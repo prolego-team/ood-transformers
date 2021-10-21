@@ -146,7 +146,12 @@ def examples_to_mean_logit(
         mean_logits={})
     dataset = predictor.create_dataset(examples, inference_config.max_length)
     logits = predictor.predict_proba(dataset)
-    return np.mean(logits, axis=0)
+
+    # k-means fit
+    from sklearn.cluster import KMeans
+    n_clusters = 2
+    kmeans = KMeans(n_clusters=n_clusters).fit(logits)
+    return kmeans.cluster_centers_
 
 
 def examples_to_mean_logits(
