@@ -59,10 +59,7 @@ def incorrect_prediction_aucs(
         incorrect_or_negative = positive_incorrect + negative_incorrect + negative_correct
         y_score = positive_correct + incorrect_or_negative
         y_true = [0] * len(positive_correct) + [1] * len(incorrect_or_negative)
-        print("y_score", y_score)
-        print("y_true", y_true)
         positive_class_auc = compute_auc(y_true, y_score)
-        print("auc", positive_class_auc)
 
         # compute negative vs. all AUC
         incorrect_or_positive = positive_correct + positive_incorrect + negative_incorrect
