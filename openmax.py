@@ -21,14 +21,96 @@ from text_classification.dataset_utils import (
 )
 
 
-def euclidean_distance_function(logits, mean_logits):
+def euclidean_distance_function(
+        logits: np.ndarray, mean_logits: np.ndarray) -> np.ndarray:
     """
     compute the euclidean distance between each logit and the
     set of mean logits
     """
     distances = []
     for logit in logits:
-        distances += np.linalg.norm(mean_logits - logit, axis=1)
+        distances += [np.linalg.norm(mean_logits - logit, axis=1)]
+    return np.array(distances)
+
+
+def mae_distance_function(
+        logits: np.ndarray, mean_logits: np.ndarray
+    ) -> np.ndarray:
+    """
+    mean absolute error distance between each logit and the
+    set of mean logits
+    (note: this is actually the sum, not the mean)
+    """
+    distances = []
+    for logit in logits:
+        distances += [np.sum(np.abs(logit - mean_logits), axis=1)]
+    return np.array(distances)
+
+
+def fractional_absolute_distance_function(
+        logits: np.ndarray, mean_logits: np.ndarray
+    ) -> np.ndarray:
+    """
+    compute distance as the fractional change in the logit
+    values with respect to mean logits
+    """
+    distances = []
+    for logit in logits:
+        fractional_change = (logit - mean_logits) / mean_logits
+        distances += [np.sum(np.abs(fractional_change), axis=1)]
+    return np.array(distances)
+
+
+def fractional_euclidean_distance_function(
+        logits: np.ndarray, mean_logits: np.ndarray
+    ) -> np.ndarray:
+    """
+    compute distance as the fractional change in the logit
+    values with respect to the mean logits, then normalize
+    """
+    distances = []
+    for logit in logits:
+        fractional_change = (logit - mean_logits) / mean_logits
+        distances += [np.linalg.norm(fractional_change, axis=1)]
+    return np.array(distances)
+
+
+def member_class_distance(logits, mean_logits):
+    distances = []
+    for logit in logits:
+        member_class_index = np.argmax(logit)
+        member_logit = logit[member_class_index]
+        member_mean_logits = mean_logits[:, member_class_index]
+        distances += [(member_mean_logits - member_logit) ** 2]
+    return np.array(distances)
+
+
+def non_member_class_distance(logits, mean_logits):
+    distances = []
+    for logit in logits:
+        member_class_index = np.argmax(logit)
+        logit_distances = []
+        for mean_logit in mean_logits:
+            logit_class = np.argmax(mean_logit)
+            non_member_logit = np.delete(logit, [member_class_index, logit_class])
+            non_member_mean_logit = np.delete(mean_logit, [member_class_index, logit_class])
+            logit_distance = np.linalg.norm(non_member_mean_logit - non_member_logit)
+            logit_distances.append(logit_distance)
+        distances += [logit_distances]
+    return np.array(distances)
+
+
+def rank_distance(logits, mean_logits):
+    from scipy.stats import spearmanr
+    distances = []
+    mean_logits_sort = np.argsort(mean_logits, axis=1)
+    for logit in logits:
+        logit_distances = []
+        logit_sort = np.argsort(logit)
+        for mean_logit in mean_logits_sort:
+            logit_distance = spearmanr(mean_logit, logit_sort).correlation
+            logit_distances.append(logit_distance)
+        distances += [logit_distances]
     return np.array(distances)
 
 
@@ -84,9 +166,7 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
         if distance threshold exceeds threshold, assign prediction
         """
         mean_logits_array = np.array([self.mean_logits[k] for k in self.class_list])
-        distances = []
-        for logit in logits:
-            distances += [np.linalg.norm(mean_logits_array - logit, axis=1)]
+        distances = self.distance_function(logits, mean_logits_array)
 
         if type(threshold) == float:
             threshold = [threshold] * len(self.class_list)

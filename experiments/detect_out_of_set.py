@@ -23,6 +23,8 @@ from nlp_datasets import (
 
 @click.command()
 @click.argument("inference_config_filepath", type=click.Path(exists=True))
+@click.option("--distance_function", "-d", default="euclidean",
+              help="euclidean, mae, fractional_euclidean, fractional_mae, member, or nonmember")
 def main(**kwargs):
 
     # Read inference config
@@ -54,10 +56,16 @@ def main(**kwargs):
         categories=inference_config.class_labels)
 
     # Build wrapped predictors
+    distance_function_map = {"euclidean": openmax.euclidean_distance_function,
+                             "mae": openmax.mae_distance_function,
+                             "fractional_euclidean": openmax.fractional_euclidean_distance_function,
+                             "fractional_mae": openmax.fractional_absolute_distance_function,
+                             "member": openmax.member_class_distance,
+                             "nonmember": openmax.non_member_class_distance}
     out = experiment_utils.build_wrapped_predictors(
         inference_config,
         in_set_train_examples,
-        openmax_distance_function=openmax.euclidean_distance_function
+        openmax_distance_function=distance_function_map[kwargs["distance_function"]]
     )
     wrapped_multilabel_predictor, wrapped_openmax_predictor = out
 
