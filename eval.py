@@ -55,16 +55,16 @@ def incorrect_prediction_aucs(
                     positive_incorrect.append(confidence)
 
     if modified_auc:
+        incorrect = positive_incorrect + negative_incorrect
+
         # compute positive vs. all AUC
-        incorrect_or_negative = positive_incorrect + negative_incorrect + negative_correct
-        y_score = positive_correct + incorrect_or_negative
-        y_true = [0] * len(positive_correct) + [1] * len(incorrect_or_negative)
+        y_score = positive_correct + incorrect
+        y_true = [0] * len(positive_correct) + [1] * len(incorrect)
         positive_class_auc = compute_auc(y_true, y_score)
 
         # compute negative vs. all AUC
-        incorrect_or_positive = positive_correct + positive_incorrect + negative_incorrect
-        y_score = negative_correct + incorrect_or_positive
-        y_true = [0] * len(negative_correct) + [1] * len(incorrect_or_positive)
+        y_score = negative_correct + incorrect
+        y_true = [0] * len(negative_correct) + [1] * len(incorrect)
         negative_class_auc = compute_auc(y_true, y_score)
 
     else:
