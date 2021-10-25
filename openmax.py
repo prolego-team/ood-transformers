@@ -88,7 +88,7 @@ def member_class_distance(logits, mean_logits):
 def non_member_class_distance(logits, mean_logits):
     distances = []
     for logit in logits:
-        member_class_indices = np.where(torch.sigmoid(torch.tensor(logit)) > 0.5)[0].astype(list)
+        member_class_indices = list(np.where(torch.sigmoid(torch.tensor(logit)) > 0.5)[0])
         logit_distances = []
         for mean_logit in mean_logits:
             logit_class = np.argmax(mean_logit)
