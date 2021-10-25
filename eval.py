@@ -58,13 +58,16 @@ def incorrect_prediction_aucs(
         # compute positive vs. all AUC
         incorrect_or_negative = positive_incorrect + negative_incorrect + negative_correct
         y_score = positive_correct + incorrect_or_negative
-        y_true = [1] * len(positive_correct) + [0] * len(incorrect_or_negative)
+        y_true = [0] * len(positive_correct) + [1] * len(incorrect_or_negative)
+        print("y_score", y_score)
+        print("y_true", y_true)
         positive_class_auc = compute_auc(y_true, y_score)
+        print("auc", positive_class_auc)
 
         # compute negative vs. all AUC
         incorrect_or_positive = positive_correct + positive_incorrect + negative_incorrect
         y_score = negative_correct + incorrect_or_positive
-        y_true = [1] * len(negative_correct) + [0] * len(incorrect_or_positive)
+        y_true = [0] * len(negative_correct) + [1] * len(incorrect_or_positive)
         negative_class_auc = compute_auc(y_true, y_score)
 
     else:
@@ -117,7 +120,7 @@ def out_of_set_aucs(
 
     # compute AUC
     y_score = in_set_confidences + out_of_set_confidences
-    y_true = [0] * in_set_confidences + [1] * out_of_set_confidences
+    y_true = [0] * len(in_set_confidences) + [1] * len(out_of_set_confidences)
     auc = compute_auc(y_true, y_score)
 
     if save_plots:
