@@ -80,7 +80,8 @@ def main(**kwargs):
             out_of_set_sigmoid_examples,
             lambda confidences: max(confidences),  # max score for sigmoid
             save_plots=True,
-            filename_prefix=filename_prefix + "sigmoid-"
+            filename_prefix=filename_prefix + "sigmoid-",
+            modified_auc=True
         )
         # distance
         distance_auc = eval.out_of_set_aucs(
@@ -88,7 +89,8 @@ def main(**kwargs):
             out_of_set_distance_examples,
             lambda confidences: min(confidences),  # min score for distance
             save_plots=True,
-            filename_prefix=filename_prefix + "distance-"
+            filename_prefix=filename_prefix + "distance-",
+            modified_auc=True
         )
         out = {"sigmoid": sigmoid_auc,
                "distance": distance_auc}
