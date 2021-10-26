@@ -85,14 +85,11 @@ class OpenMaxPredictor(inference_utils.MultilabelPredictor):
         """
         mean_logits_array = np.array([self.mean_logits[k] for k in self.class_list])
         distances = []
-        for logit in logits:
-            class_distances = []
-            for k in self.class_list:
-                class_logits = np.array(self.mean_logits[k])
-                curr_class_nearest_distance = min(np.linalg.norm(class_logits - logit, axis=1))
-                class_distances.append(curr_class_nearest_distance)
-            distances += [class_distances]
-        distances = np.array(distances)
+        for k in self.class_list:
+            class_logits = np.array(self.mean_logits[k])
+            curr_class_nearest_distances = np.min(self.distance_function(logits, class_logits), axis=1)
+            distances += [curr_class_nearest_distances]
+        distances = np.array(distances).T
 
         if type(threshold) == float:
             threshold = [threshold] * len(self.class_list)
