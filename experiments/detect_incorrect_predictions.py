@@ -16,6 +16,8 @@ import experiment_utils
 
 @click.command()
 @click.argument("inference_config_filepath", type=click.Path(exists=True))
+@click.option("--distance_function", "-d", default="euclidean",
+              help="euclidean, mae, fractional_euclidean, fractional_mae, member, nonmember, or rank")
 def main(**kwargs):
 
     # Read inference config
@@ -29,10 +31,17 @@ def main(**kwargs):
     # test_examples = test_examples[:10]
 
     # Build wrapped predictors
+    distance_function_map = {"euclidean": openmax.euclidean_distance_function,
+                             "mae": openmax.mae_distance_function,
+                             "fractional_euclidean": openmax.fractional_euclidean_distance_function,
+                             "fractional_mae": openmax.fractional_absolute_distance_function,
+                             "member": openmax.member_class_distance,
+                             "nonmember": openmax.non_member_class_distance,
+                             "rank": openmax.rank_distance}
     out = experiment_utils.build_wrapped_predictors(
         inference_config,
         train_examples,
-        openmax_distance_function=openmax.euclidean_distance_function
+        openmax_distance_function=distance_function_map[kwargs["distance_function"]]
     )
     wrapped_multilabel_predictor, wrapped_openmax_predictor = out
 
@@ -82,15 +91,15 @@ def main(**kwargs):
     # print results
     print("Sigmoid")
     print("   Positive")
-    print("   ", round(sigmoid_positive_auc, 2))
+    print("   ", round(sigmoid_positive_auc, 5))
     print("   Negative")
-    print("   ", round(sigmoid_negative_auc, 2))
+    print("   ", round(sigmoid_negative_auc, 5))
     print()
     print("OpenMax Distance")
     print("   Positive")
-    print("   ", round(distance_positive_auc, 2))
+    print("   ", round(distance_positive_auc, 5))
     print("   Negative")
-    print("   ", round(distance_negative_auc, 2))
+    print("   ", round(distance_negative_auc, 5))
     print()
 
 
