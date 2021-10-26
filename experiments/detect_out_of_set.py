@@ -23,6 +23,8 @@ from nlp_datasets import (
 
 @click.command()
 @click.argument("inference_config_filepath", type=click.Path(exists=True))
+@click.option("--distance_function", "-d", default="euclidean",
+              help="euclidean, mae, fractional_euclidean, fractional_mae, member, or nonmember")
 def main(**kwargs):
 
     # Read inference config
@@ -54,33 +56,18 @@ def main(**kwargs):
         categories=inference_config.class_labels)
 
     # Build wrapped predictors
+    distance_function_map = {"euclidean": openmax.euclidean_distance_function,
+                             "mae": openmax.mae_distance_function,
+                             "fractional_euclidean": openmax.fractional_euclidean_distance_function,
+                             "fractional_mae": openmax.fractional_absolute_distance_function,
+                             "member": openmax.member_class_distance,
+                             "nonmember": openmax.non_member_class_distance}
     out = experiment_utils.build_wrapped_predictors(
         inference_config,
         in_set_train_examples,
-        openmax_distance_function=openmax.euclidean_distance_function
+        openmax_distance_function=distance_function_map[kwargs["distance_function"]]
     )
     wrapped_multilabel_predictor, wrapped_openmax_predictor = out
-
-    # Use training data to derive thresholds for classification
-    lower_bound_confidence = 5
-    upper_bound_confidence = 95
-
-    sigmoid_confidence_threshold = openmax.derive_confidence_threshold(
-        in_set_train_examples,
-        wrapped_multilabel_predictor,
-        lower_bound_confidence,
-        upper_bound_confidence
-    )
-
-    distance_confidence_threshold = openmax.derive_confidence_threshold(
-        in_set_train_examples,
-        wrapped_openmax_predictor,
-        upper_bound_confidence,
-        lower_bound_confidence
-    )
-    print("thresholds")
-    print("sigma", sigmoid_confidence_threshold)
-    print("distance", distance_confidence_threshold)
 
     # Perform inference on in-set and out-of-set (oos) test data
     in_set_sigmoid_examples = wrapped_multilabel_predictor(in_set_test_examples)
@@ -96,27 +83,23 @@ def main(**kwargs):
             out_of_set_distance_examples,
             filename_prefix):
         # sigmoid
-        sigmoid_positive_auc, sigmoid_negative_auc = eval.out_of_set_aucs(
+        sigmoid_auc = eval.out_of_set_aucs(
             in_set_sigmoid_examples,
             out_of_set_sigmoid_examples,
-            lambda confidence: confidence >= sigmoid_confidence_threshold,
-            lambda confidence: confidence < sigmoid_confidence_threshold,
+            lambda confidences: max(confidences),  # max score for sigmoid
             save_plots=True,
-            filename_prefix=filename_prefix + "-sigmoid-"
+            filename_prefix=filename_prefix + "sigmoid-"
         )
         # distance
-        distance_positive_auc, distance_negative_auc = eval.out_of_set_aucs(
+        distance_auc = eval.out_of_set_aucs(
             in_set_distance_examples,
             out_of_set_distance_examples,
-            lambda confidence: confidence <= distance_confidence_threshold,
-            lambda confidence: confidence > distance_confidence_threshold,
+            lambda confidences: min(confidences),  # min score for distance
             save_plots=True,
-            filename_prefix=filename_prefix + "-distance-"
+            filename_prefix=filename_prefix + "distance-"
         )
-        out = {"sigmoid": {"positive": sigmoid_positive_auc,
-                           "negative": sigmoid_negative_auc},
-               "distance": {"positive": distance_positive_auc,
-                            "negative": distance_negative_auc}}
+        out = {"sigmoid": sigmoid_auc,
+               "distance": distance_auc}
         return out
 
     reuters_aucs = auc_helper(reuters_oos_sigmoid_examples, reuters_oos_distance_examples, "reuters")
