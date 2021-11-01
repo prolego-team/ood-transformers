@@ -59,7 +59,7 @@ def reuters_class_labels() -> List[str]:
 
 def reuters_dataset_to_train_test_examples(
         categories: Optional[List[str]],
-        background_categories: Optional[List[str]],
+        background_categories: Optional[List[str]] = None,
         shuffle_train_examples: bool = False,
         seed: int = 12345
     ) -> Tuple[List[InputMultilabelExample], List[InputMultilabelExample]]:
