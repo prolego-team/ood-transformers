@@ -40,7 +40,8 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     in_set_foreground_test = [e for e in test_examples
                               if contains_class_label(e, TOP_FIVE_CATEGORIES)]
     in_set_background_test = [e for e in test_examples
-                              if contains_class_label(e, BACKGROUND_CATEGORIES)]
+                              if not contains_class_label(e, TOP_FIVE_CATEGORIES)
+                              and contains_class_label(e, BACKGROUND_CATEGORIES)]
     oos_test = [e for e in test_examples
                 if not contains_class_label(e, TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES)]
 
@@ -55,15 +56,15 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         inference_config.class_labels
     )
     in_set_foreground_preds = multilabel_predictor(
-        in_set_foreground_test, inference_config.max_length, 0.5)
+        in_set_foreground_test, inference_config.max_length, -1.0)
     in_set_background_preds = multilabel_predictor(
-        in_set_background_test, inference_config.max_length, 0.5
+        in_set_background_test, inference_config.max_length, -1.0
     )
     oos_preds = multilabel_predictor(
-        oos_test, inference_config.max_length, 0.5
+        oos_test, inference_config.max_length, -1.0
     )
     movies_preds = multilabel_predictor(
-        movie_reviews_examples, inference_config.max_length, 0.5
+        movie_reviews_examples, inference_config.max_length, -1.0
     )
 
     # Compute AUCs for in-set vs. out-of-set examples
