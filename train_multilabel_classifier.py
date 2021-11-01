@@ -65,11 +65,12 @@ def main(**kwargs):
 
     # read data and create train/test examples
     if kwargs["use_background_categories"]:
-        categories = TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES
+        background_categories = BACKGROUND_CATEGORIES
     else:
-        categories = TOP_FIVE_CATEGORIES
+        background_categories = None
     train_examples, test_examples = reuters_dataset_to_train_test_examples(
-        categories=categories,
+        categories=TOP_FIVE_CATEGORIES,
+        background_categories=background_categories,
         shuffle_train_examples=True,
         seed=RANDOM_SEED
     )

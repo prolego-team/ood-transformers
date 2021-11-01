@@ -27,6 +27,7 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     # Load reuters data, split into train/test/out-of-set
     _, test_examples = reuters_dataset_to_train_test_examples(
         categories=None,
+        background_categories=None,
         shuffle_train_examples=False
     )
     training_labels = TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES
