@@ -142,9 +142,9 @@ def main(**kwargs):
 
 
     # Inference
-    base_metrics = run_inference_and_eval("trained_base\inference_config.json", plot_filename_prefix="base")
-    base_with_background_metrics = run_inference_and_eval("trained_base_w_background\inference_config.json", plot_filename_prefix="base-w-background")
-    objectosphere_metrics = run_inference_and_eval("trained_objectosphere\inference_config.json", plot_filename_prefix="objectosphere")
+    base_metrics = run_inference_and_eval("trained_base/inference_config.json", plot_filename_prefix="base")
+    base_with_background_metrics = run_inference_and_eval("trained_base_w_background/inference_config.json", plot_filename_prefix="base-w-background")
+    objectosphere_metrics = run_inference_and_eval("trained_objectosphere/inference_config.json", plot_filename_prefix="objectosphere")
 
     # Print Results
     print("Base")
