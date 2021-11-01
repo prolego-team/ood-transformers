@@ -71,7 +71,6 @@ class ObjectosphereTrainer(MultilabelTrainer):
         if compute_foreground and compute_background:
             # accumulate
             loss = foreground_loss + background_loss
-            print("loss", loss)
             outputs = background_outputs | foreground_outputs
         elif compute_foreground:
             loss = foreground_loss
