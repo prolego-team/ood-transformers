@@ -3,6 +3,7 @@ Detect incorrect predictions using a model trained with objectosphere loss
 """
 
 
+import os
 from pprint import pprint
 
 import click
@@ -12,7 +13,6 @@ from text_classification.inference_utils import MultilabelPredictor
 
 from eval import out_of_set_aucs
 from nlp_datasets import BACKGROUND_CATEGORIES, TOP_FIVE_CATEGORIES, movie_reviews_dataset_to_examples, reuters_dataset_to_train_test_examples
-import train_multilabel_classifier
 
 
 def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix: str = "") -> dict:
@@ -103,6 +103,20 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     return out
 
 
+def generate_training_command(
+        saved_model_dirpath,
+        use_background_categories,
+        use_objectosphere_loss):
+    command = "python -m train_multilabel_classifier test_data\training_config.json"
+    command += "-md " + saved_model_dirpath + " "
+    command += "-icf " + os.path.join(saved_model_dirpath, "inference_config.json") + " "
+    if use_background_categories:
+        command += "-bc "
+    if use_objectosphere_loss:
+        command += "-ol "
+    command = command.strip()
+    return command
+
 
 @click.command()
 @click.option("--do_train", "-dt", is_flag=True)
@@ -110,29 +124,20 @@ def main(**kwargs):
     # Model Training
     if kwargs["do_train"]:
 
-        command_line_args = {"training_config_filepath": "test_data\training_config.json",
-                            "do_class_weights": False}
-
         # base model, no background examples
-        command_line_args["saved_model_dirpath"] = "trained_base"
-        command_line_args["inference_config_filepath"] = "trained_base\inference_config.json"
-        command_line_args["use_background_categories"] = False
-        command_line_args["use_objectosphere_loss"] = False
-        train_multilabel_classifier.main(command_line_args)
+        command = generate_training_command("trained_base", False, False)
+        print(command)
+        os.system(command)
 
         # base model, with background examples
-        command_line_args["saved_model_dirpath"] = "trained_base_w_background"
-        command_line_args["inference_config_filepath"] = "trained_base_w_background\inference_config.json"
-        command_line_args["use_background_categories"] = True
-        command_line_args["use_objectosphere_loss"] = False
-        train_multilabel_classifier.main(command_line_args)
+        command = generate_training_command("trained_base_w_background", True, False)
+        print(command)
+        os.system(command)
 
         # objectosphere model, with background examples
-        command_line_args["saved_model_dirpath"] = "trained_objectosphere"
-        command_line_args["inference_config_filepath"] = "trained_objectosphere\inference_config.json"
-        command_line_args["use_background_categories"] = True
-        command_line_args["use_objectosphere_loss"] = True
-        train_multilabel_classifier.main(command_line_args)
+        command = generate_training_command("trained_objectosphere", True, True)
+        print(command)
+        os.system(command)
 
 
     # Inference
