@@ -111,23 +111,25 @@ def main(**kwargs):
     if kwargs["do_train"]:
 
         command_line_args = {"training_config_filepath": "test_data\training_config.json",
-                            "inference_config_filepath": "inference_config.json",
                             "do_class_weights": False}
 
         # base model, no background examples
         command_line_args["saved_model_dirpath"] = "trained_base"
+        command_line_args["inference_config_filepath"] = "trained_base\inference_config.json"
         command_line_args["use_background_categories"] = False
         command_line_args["use_objectosphere_loss"] = False
         train_multilabel_classifier.main(command_line_args)
 
         # base model, with background examples
         command_line_args["saved_model_dirpath"] = "trained_base_w_background"
+        command_line_args["inference_config_filepath"] = "trained_base_w_background\inference_config.json"
         command_line_args["use_background_categories"] = True
         command_line_args["use_objectosphere_loss"] = False
         train_multilabel_classifier.main(command_line_args)
 
         # objectosphere model, with background examples
         command_line_args["saved_model_dirpath"] = "trained_objectosphere"
+        command_line_args["inference_config_filepath"] = "trained_objectosphere\inference_config.json"
         command_line_args["use_background_categories"] = True
         command_line_args["use_objectosphere_loss"] = True
         train_multilabel_classifier.main(command_line_args)
