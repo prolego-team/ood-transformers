@@ -18,9 +18,9 @@ from text_classification.model_utils import MultilabelTrainer
 
 def split_inputs(inputs: dict) -> Tuple[dict, dict]:
     # construct foreground and background inputs
-    input_ids = inputs["input_ids"].numpy()
-    attention_mask = inputs["attention_mask"].numpy()
-    labels = inputs["labels"].numpy()
+    input_ids = inputs["input_ids"].cpu().numpy()
+    attention_mask = inputs["attention_mask"].cpu().numpy()
+    labels = inputs["labels"].cpu().numpy()
 
     background = {k: [] for k in ["input_ids", "attention_mask", "labels"]}
     foreground = {k: [] for k in ["input_ids", "attention_mask", "labels"]}
