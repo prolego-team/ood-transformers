@@ -30,7 +30,6 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         background_categories=None,
         shuffle_train_examples=False
     )
-    training_labels = TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES
     def contains_class_label(example, class_labels) -> bool:
         for label in example.labels:
             if label in class_labels:
@@ -47,7 +46,7 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
 
     # Load movie reviews data
     movie_reviews_examples = movie_reviews_dataset_to_examples(
-        categories=training_labels
+        categories=TOP_FIVE_CATEGORIES
     )
 
     # Perform inference
@@ -94,7 +93,7 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         movies_preds,
         lambda confidences: max(confidences),
         save_plots=True,
-        filename_prefix="-movies-background-"
+        filename_prefix=plot_filename_prefix + "-movies-background-"
     )
 
     # Format output
