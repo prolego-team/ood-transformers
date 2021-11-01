@@ -15,9 +15,10 @@ from text_classification import (
 )
 from nlp_datasets import (
     TOP_FIVE_CATEGORIES,
+    BACKGROUND_CATEGORIES,
     reuters_dataset_to_train_test_examples
 )
-import openmax
+import openmax, objectosphere
 
 
 RANDOM_SEED = 12345
@@ -47,6 +48,9 @@ TRAINING_ARGUMENTS = {
               help="Path to save the inference config file created after training.")
 @click.option("--do_class_weights", "-cw", is_flag=True,
               help="Weight the loss by relative class frequency to account for class imbalance.")
+@click.option("--use_background_categories", "-bc", is_flag=True)
+@click.option("--saved_model_dirpath", "-md", default=None)
+@click.option("--use_objectosphere_loss", "-ol", is_flag=True)
 def main(**kwargs):
     """
     Train a transformers model to classify Reuters data by topic.
@@ -54,11 +58,18 @@ def main(**kwargs):
 
     # read training config
     training_config = configs.read_config_for_training(kwargs["training_config_filepath"])
-    TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
+    if kwargs["saved_model_dirpath"]:
+        TRAINING_ARGUMENTS["output_dir"] = kwargs["saved_model_dirpath"]
+    else:
+        TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
 
     # read data and create train/test examples
+    if kwargs["use_background_categories"]:
+        categories = TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES
+    else:
+        categories = TOP_FIVE_CATEGORIES
     train_examples, test_examples = reuters_dataset_to_train_test_examples(
-        categories=TOP_FIVE_CATEGORIES,
+        categories=categories,
         shuffle_train_examples=True,
         seed=RANDOM_SEED
     )
@@ -90,6 +101,10 @@ def main(**kwargs):
     )
 
     # train model
+    if kwargs["use_objectosphere_loss"]:
+        multilabel_trainer = objectosphere.ObjectosphereTrainer
+    else:
+        multilabel_trainer = model_utils.MultilabelTrainer
     training_utils.train_multilabel_classifier(
         train_dataset,
         test_dataset,
@@ -97,7 +112,8 @@ def main(**kwargs):
         num_labels,
         TRAINING_ARGUMENTS,
         do_eval=True,
-        do_class_weights=kwargs["do_class_weights"]
+        do_class_weights=kwargs["do_class_weights"],
+        multilabel_trainer=multilabel_trainer
     )
 
     # create and save inference config

@@ -23,6 +23,7 @@ def clean_text_string(text: str) -> str:
 # Reuters
 # the top five categories all have >500 examples distributed between train and test
 TOP_FIVE_CATEGORIES = ["earn", "acq", "money-fx", "grain", "crude"]
+BACKGROUND_CATEGORIES = ["trade", "interest", "ship", "wheat", "corn"]
 
 def reuters_dataset_dictionaries(categories: Optional[List[str]]) -> List[dict]:
     """
@@ -58,6 +59,7 @@ def reuters_class_labels() -> List[str]:
 
 def reuters_dataset_to_train_test_examples(
         categories: Optional[List[str]],
+        background_categories: Optional[List[str]],
         shuffle_train_examples: bool = False,
         seed: int = 12345
     ) -> Tuple[List[InputMultilabelExample], List[InputMultilabelExample]]:
@@ -66,7 +68,17 @@ def reuters_dataset_to_train_test_examples(
     If shuffle_train_examples is true, shuffle the order of training examples (set seed
        using the seed argument)
     """
-    reuters_data = reuters_dataset_dictionaries(categories=categories)
+    # build list of all categories, including foreground and background
+    all_categories = []
+    if categories is None:
+        # use ALL categories (by setting all_categories to None)
+        all_categories = None
+    else:
+        all_categories += categories
+        if background_categories:
+            all_categories += background_categories
+
+    reuters_data = reuters_dataset_dictionaries(categories=all_categories)
     train_examples = dictionaries_to_input_multilabel_examples(
         [d for d in reuters_data if d["is_train"]],
         False
@@ -75,6 +87,18 @@ def reuters_dataset_to_train_test_examples(
         [d for d in reuters_data if not d["is_train"]],
         False
     )
+
+    # remove labels for background categories
+    if background_categories:
+        def remove_background_labels(examples):
+            new_examples = [InputMultilabelExample(
+                example.guid,
+                example.text,
+                [l for l in example.labels if l not in background_categories])
+                for example in examples]
+            return new_examples
+        train_examples = remove_background_labels(train_examples)
+        test_examples = remove_background_labels(test_examples)
 
     if shuffle_train_examples:
         random.seed(seed)
