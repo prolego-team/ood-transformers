@@ -10,15 +10,14 @@ import pickle
 from text_classification import (
     configs,
     dataset_utils,
-    model_utils,
-    training_utils
+    model_utils
 )
 from nlp_datasets import (
     TOP_FIVE_CATEGORIES,
     BACKGROUND_CATEGORIES,
     reuters_dataset_to_train_test_examples
 )
-import openmax, objectosphere
+import openmax, objectosphere, training_utils
 
 
 RANDOM_SEED = 12345
