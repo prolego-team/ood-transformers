@@ -72,8 +72,8 @@ def main(**kwargs):
     # Perform inference on in-set and out-of-set (oos) test data
     in_set_sigmoid_examples = wrapped_multilabel_predictor(in_set_test_examples)
     in_set_distance_examples = wrapped_openmax_predictor(in_set_test_examples)
-    reuters_oos_sigmoid_examples = wrapped_multilabel_predictor(reuters_out_of_set_examples)
-    reuters_oos_distance_examples = wrapped_openmax_predictor(reuters_out_of_set_examples)
+    # reuters_oos_sigmoid_examples = wrapped_multilabel_predictor(reuters_out_of_set_examples)
+    # reuters_oos_distance_examples = wrapped_openmax_predictor(reuters_out_of_set_examples)
     movies_oos_sigmoid_examples = wrapped_multilabel_predictor(movie_reviews_examples)
     movies_oos_distance_examples = wrapped_openmax_predictor(movie_reviews_examples)
 
@@ -102,12 +102,12 @@ def main(**kwargs):
                "distance": distance_auc}
         return out
 
-    reuters_aucs = auc_helper(reuters_oos_sigmoid_examples, reuters_oos_distance_examples, "reuters")
+    # reuters_aucs = auc_helper(reuters_oos_sigmoid_examples, reuters_oos_distance_examples, "reuters")
     movies_aucs = auc_helper(movies_oos_sigmoid_examples, movies_oos_distance_examples, "movies")
 
     # print results
-    print("Reuters")
-    pprint(reuters_aucs)
+    # print("Reuters")
+    # pprint(reuters_aucs)
     print("Movie Reviews")
     pprint(movies_aucs)
 

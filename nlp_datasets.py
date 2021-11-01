@@ -22,7 +22,8 @@ def clean_text_string(text: str) -> str:
 
 # Reuters
 # the top five categories all have >500 examples distributed between train and test
-TOP_FIVE_CATEGORIES = ["earn", "acq", "money-fx", "grain", "crude"]
+# TOP_FIVE_CATEGORIES = ["earn", "acq", "money-fx", "grain", "crude"]
+TOP_FIVE_CATEGORIES = reuters.categories()
 
 def reuters_dataset_dictionaries(categories: Optional[List[str]]) -> List[dict]:
     """
