@@ -105,7 +105,8 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     )
 
     # Format output
-    out = {"Reuters": {"in-set foreground vs. oos": in_set_foreground_vs_oos,
+    out = {"Reuters": {"in-set foreground vs. in-set background": in_set_foreground_vs_background,
+                       "in-set foreground vs. oos": in_set_foreground_vs_oos,
                        "in-set-background vs. oos": in_set_background_vs_oos},
            "Movie Reviews": {"in-set foreground vs. oos": in_set_foreground_vs_movies,
                              "in-set background vs. oos": in_set_background_vs_movies}}
@@ -113,9 +114,9 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
 
 
 def generate_training_command(
-        saved_model_dirpath,
-        use_background_categories,
-        use_objectosphere_loss):
+        saved_model_dirpath: str,
+        use_background_categories: bool,
+        use_objectosphere_loss: bool) -> str:
     command = "python -m train_multilabel_classifier test_data/training_config.json "
     command += "-md " + saved_model_dirpath + " "
     command += "-icf " + os.path.join(saved_model_dirpath, "inference_config.json") + " "
@@ -127,12 +128,21 @@ def generate_training_command(
     return command
 
 
-@click.command()
-@click.option("--do_train", "-dt", is_flag=True)
-def main(**kwargs):
-    # Model Training
-    if kwargs["do_train"]:
+def generate_eval_command(saved_model_dirpath: str) -> str:
+    inference_config_filepath = os.path.join(saved_model_dirpath, "inference_config.json")
+    command = "python -m evaluate_multilabel_classifier " + inference_config_filepath
+    command = command + " -c"
+    return command
 
+
+@click.command()
+@click.option("--do_train", "-t", is_flag=True)
+@click.option("--do_eval", "-e", is_flag=True)
+@click.option("--do_auc", "-a", is_flag=True)
+def main(**kwargs):
+
+    # Model training
+    if kwargs["do_train"]:
         # base model, no background examples
         command = generate_training_command("trained_base", False, False)
         print(command)
@@ -148,19 +158,37 @@ def main(**kwargs):
         print(command)
         os.system(command)
 
+    # Evaluate trained model performance on test set
+    if kwargs["do_eval"]:
+        # base model, no background examples
+        command = generate_eval_command("trained_base")
+        print(command)
+        os.system(command)
 
-    # Inference
-    base_metrics = run_inference_and_eval("trained_base/inference_config.json", plot_filename_prefix="base")
-    base_with_background_metrics = run_inference_and_eval("trained_base_w_background/inference_config.json", plot_filename_prefix="base-w-background")
-    objectosphere_metrics = run_inference_and_eval("trained_objectosphere/inference_config.json", plot_filename_prefix="objectosphere")
+        # base model, with background examples
+        command = generate_eval_command("trained_base_w_background")
+        print(command)
+        os.system(command)
 
-    # Print Results
-    print("Base")
-    pprint(base_metrics)
-    print("Base Trained with Background")
-    pprint(base_with_background_metrics)
-    print("Objectosphere")
-    pprint(objectosphere_metrics)
+        # objectosphere model, with background examples
+        command = generate_eval_command("trained_objectosphere")
+        print(command)
+        os.system(command)
+
+    # Evaluate difference between in-set vs. out-of-set sample confidences
+    if kwargs["do_auc"]:
+        # Inference
+        base_metrics = run_inference_and_eval("trained_base/inference_config.json", plot_filename_prefix="base")
+        base_with_background_metrics = run_inference_and_eval("trained_base_w_background/inference_config.json", plot_filename_prefix="base-w-background")
+        objectosphere_metrics = run_inference_and_eval("trained_objectosphere/inference_config.json", plot_filename_prefix="objectosphere")
+
+        # Print Results
+        print("Base")
+        pprint(base_metrics)
+        print("Base Trained with Background")
+        pprint(base_with_background_metrics)
+        print("Objectosphere")
+        pprint(objectosphere_metrics)
 
 
 if __name__ == "__main__":
