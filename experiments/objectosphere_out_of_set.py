@@ -66,6 +66,14 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         movie_reviews_examples, inference_config.max_length, -1.0
     )
 
+    # Sanity check - in-set foreground vs. in-set background
+    in_set_foreground_vs_background = out_of_set_aucs(
+        in_set_foreground_preds,
+        in_set_background_preds,
+        lambda confidences: max(confidences),
+        save_plots=True,
+        filename_prefix=plot_filename_prefix + "-reuters-fgvsbg-"
+    )
     # Compute AUCs for in-set vs. out-of-set examples
     in_set_foreground_vs_oos = out_of_set_aucs(
         in_set_foreground_preds,
