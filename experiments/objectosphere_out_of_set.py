@@ -66,7 +66,8 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         movie_reviews_examples, inference_config.max_length, -1.0
     )
 
-    confidence_extraction_method = lambda confidences: confidences
+    # confidence_extraction_method = lambda confidences: confidences
+    confidence_extraction_method = lambda confidences: [abs(c - 0.5) for c in confidences]
     # Sanity check - in-set foreground vs. in-set background
     in_set_foreground_vs_background = out_of_set_aucs(
         in_set_foreground_preds,
