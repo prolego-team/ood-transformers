@@ -97,7 +97,7 @@ def out_of_set_aucs(
 
     # compute AUC
     y_score = in_set_confidences + out_of_set_confidences
-    y_true = [0] * len(in_set_confidences) * confidence_count_per_example + [1] * len(out_of_set_confidences) * confidence_count_per_example
+    y_true = [0] * len(in_set_confidences) + [1] * len(out_of_set_confidences)
     auc = compute_auc(y_true, y_score)
 
     if save_plots:
