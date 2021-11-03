@@ -6,7 +6,7 @@ and display some metrics
 
 import click
 
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix as sklearn_confusion_matrix
 
 from text_classification import (
     configs,
@@ -55,7 +55,7 @@ def main(**kwargs):
         print("Number of labels pred. vs. true")
         labels = sorted(set(pred_count_pred + pred_count_true))
         print(labels)
-        print(confusion_matrix(pred_count_true, pred_count_pred, labels=labels))
+        print(sklearn_confusion_matrix(pred_count_true, pred_count_pred, labels=labels))
 
 
 if __name__ == "__main__":
