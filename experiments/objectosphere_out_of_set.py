@@ -66,11 +66,12 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         movie_reviews_examples, inference_config.max_length, -1.0
     )
 
+    confidence_extraction_method = lambda confidences: max(confidences) - min(confidences)
     # Sanity check - in-set foreground vs. in-set background
     in_set_foreground_vs_background = out_of_set_aucs(
         in_set_foreground_preds,
         in_set_background_preds,
-        lambda confidences: max(confidences),
+        confidence_extraction_method,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-reuters-fgvsbg-"
     )
@@ -78,28 +79,28 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     in_set_foreground_vs_oos = out_of_set_aucs(
         in_set_foreground_preds,
         oos_preds,
-        lambda confidences: max(confidences),
+        confidence_extraction_method,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-reuters-foreground-"
     )
     in_set_background_vs_oos = out_of_set_aucs(
         in_set_background_preds,
         oos_preds,
-        lambda confidences: max(confidences),
+        confidence_extraction_method,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-reuters-background-"
     )
     in_set_foreground_vs_movies = out_of_set_aucs(
         in_set_foreground_preds,
         movies_preds,
-        lambda confidences: max(confidences),
+        confidence_extraction_method,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-movies-foreground-"
     )
     in_set_background_vs_movies = out_of_set_aucs(
         in_set_background_preds,
         movies_preds,
-        lambda confidences: max(confidences),
+        confidence_extraction_method,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-movies-background-"
     )
