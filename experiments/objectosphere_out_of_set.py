@@ -107,11 +107,13 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     # )
 
     # Format output
-    out = {"Reuters": {"in-set foreground vs. in-set background": in_set_foreground_vs_background,
+    out = {"Reuters": {# "in-set foreground vs. in-set background": in_set_foreground_vs_background,
                        "in-set foreground vs. oos": in_set_foreground_vs_oos,
-                       "in-set-background vs. oos": in_set_background_vs_oos},
+                       # "in-set-background vs. oos": in_set_background_vs_oos},
+                      },
            "Movie Reviews": {"in-set foreground vs. oos": in_set_foreground_vs_movies,
-                             "in-set background vs. oos": in_set_background_vs_movies}}
+                             # "in-set background vs. oos": in_set_background_vs_movies}}
+                            }}
     return out
 
 
