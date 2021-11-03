@@ -91,12 +91,13 @@ def out_of_set_aucs(
                           for example in in_set_prediction_examples]
     out_of_set_confidences = [confidence_extraction_method(example.confidences)
                               for example in out_of_set_prediction_examples]
+    confidence_count_per_example = len(in_set_confidences[0])
     in_set_confidences = list(chain(*in_set_confidences))
     out_of_set_confidences = list(chain(*out_of_set_confidences))
 
     # compute AUC
     y_score = in_set_confidences + out_of_set_confidences
-    y_true = [0] * len(in_set_confidences) + [1] * len(out_of_set_confidences)
+    y_true = [0] * len(in_set_confidences * confidence_count_per_example) + [1] * len(out_of_set_confidences * confidence_count_per_example)
     auc = compute_auc(y_true, y_score)
 
     if save_plots:
