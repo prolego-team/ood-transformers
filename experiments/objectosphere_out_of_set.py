@@ -105,7 +105,7 @@ def generate_training_command(
 def generate_eval_command(saved_model_dirpath: str) -> str:
     inference_config_filepath = os.path.join(saved_model_dirpath, "inference_config.json")
     command = "python -m evaluate_multilabel_classifier " + inference_config_filepath
-    command = command + " -c"
+    # command = command + " -c"
     return command
 
 
