@@ -91,7 +91,6 @@ def out_of_set_aucs(
                           for example in in_set_prediction_examples]
     out_of_set_confidences = [confidence_extraction_method(example.confidences)
                               for example in out_of_set_prediction_examples]
-    confidence_count_per_example = len(in_set_confidences[0])
     in_set_confidences = list(chain(*in_set_confidences))
     out_of_set_confidences = list(chain(*out_of_set_confidences))
 
@@ -106,7 +105,15 @@ def out_of_set_aucs(
         out_filepath = "experiments/" + filename_prefix + "detect-oos.png"
         confidence_histograms(confidences, labels, out_filepath)
 
-    return auc
+    # compute per-example AUC
+    agg_method = lambda confidences: max(confidences)
+    in_set_confidences = [agg_method(example.confidences) for example in in_set_prediction_examples]
+    out_of_set_confidences = [agg_method(example.confidences) for example in out_of_set_prediction_examples]
+    y_score = in_set_confidences + out_of_set_confidences
+    y_true = [0] * len(in_set_confidences) + [1] * len(out_of_set_confidences)
+    agg_auc = compute_auc(y_true, y_score)
+
+    return auc, agg_auc
 
 
 def confidence_histograms(
