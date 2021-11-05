@@ -27,26 +27,57 @@ def main(**kwargs):
         background_categories=BACKGROUND_CATEGORIES,
         shuffle_train_examples=False
     )
+    foreground_test_examples = [e for e in test_examples if len(e.labels) > 0]
+    background_test_examples = [e for e in test_examples if len(e.labels) == 0]
     # test_examples = test_examples[:10]
 
     # read inference config
     inference_config = configs.read_config_for_inference(kwargs["inference_config_filepath"])
 
-    # run inference
+    # run inference on foreground and background examples
     predictor = inference_utils.MultilabelPredictor(
         inference_config.model_config,
         inference_config.class_labels
     )
-    prediction_examples = predictor(test_examples, inference_config.max_length)
+    foreground_prediction_examples = predictor(foreground_test_examples, inference_config.max_length)
+    background_prediction_examples = predictor(background_test_examples, inference_config.max_length)
 
-    # construct confusion matrices (one for each label)
-    confusion_matrices = eval_utils.multilabel_confusion_matrix(
-        test_examples, prediction_examples, inference_config.class_labels)
+    # microaveraging precision/recall
+    tp_count = 0
+    fp_count = 0
+    fn_count = 0
+    for pred_example, true_example in zip(foreground_prediction_examples, foreground_test_examples):
+        labels = list(set(pred_example.labels + true_example.labels))
+        for label in labels:
+            if label in true_example.labels:
+                if label in pred_example.labels:
+                    # true positive
+                    tp_count += 1
+                else:
+                    # false negative
+                    fn_count += 1
+            else:
+                # false positive
+                fp_count += 1
+    precision = tp_count / (tp_count + fp_count)
+    recall = tp_count / (tp_count + fn_count)
+    print("Precision:", precision)
+    print("Recall:", recall)
 
-    for class_label, confusion_matrix in confusion_matrices.items():
-        print(class_label)
-        print(confusion_matrix)
-        print()
+    # compute percent of background examples correctly identified as such
+    is_pred_background = [len(e.labels) == 0 for e in background_prediction_examples]
+    print("Background examples correctly identified", len(is_pred_background), "/", len(background_prediction_examples))
+    print(len(is_pred_background) / len(background_prediction_examples) * 100)
+
+    if False:
+        # construct confusion matrices (one for each label)
+        confusion_matrices = eval_utils.multilabel_confusion_matrix(
+            test_examples, prediction_examples, inference_config.class_labels)
+
+        for class_label, confusion_matrix in confusion_matrices.items():
+            print(class_label)
+            print(confusion_matrix)
+            print()
 
     if kwargs["analyze_count"]:
         # construct confusion matrix for number of predictions predicted vs actual

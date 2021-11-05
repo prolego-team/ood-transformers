@@ -56,9 +56,6 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     )
     in_set_foreground_preds = multilabel_predictor(
         in_set_foreground_test, inference_config.max_length, -1.0)
-    in_set_background_preds = multilabel_predictor(
-        in_set_background_test, inference_config.max_length, -1.0
-    )
     oos_preds = multilabel_predictor(
         oos_test, inference_config.max_length, -1.0
     )
@@ -68,14 +65,6 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
 
     # confidence_extraction_method = lambda confidences: confidences
     confidence_extraction_method = lambda confidences: [abs(c - 0.5) for c in confidences]
-    # Sanity check - in-set foreground vs. in-set background
-    # in_set_foreground_vs_background = out_of_set_aucs(
-        # in_set_foreground_preds,
-        # in_set_background_preds,
-        # confidence_extraction_method,
-        # save_plots=True,
-        # filename_prefix=plot_filename_prefix + "-reuters-fgvsbg-"
-    # )
     # Compute AUCs for in-set vs. out-of-set examples
     in_set_foreground_vs_oos = out_of_set_aucs(
         in_set_foreground_preds,
@@ -84,13 +73,6 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-reuters-"
     )
-    # in_set_background_vs_oos = out_of_set_aucs(
-        # in_set_background_preds,
-        # oos_preds,
-        # confidence_extraction_method,
-        # save_plots=True,
-        # filename_prefix=plot_filename_prefix + "-reuters-background-"
-    # )
     in_set_foreground_vs_movies = out_of_set_aucs(
         in_set_foreground_preds,
         movies_preds,
@@ -98,22 +80,10 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-movies-"
     )
-    # in_set_background_vs_movies = out_of_set_aucs(
-        # in_set_background_preds,
-        # movies_preds,
-        # confidence_extraction_method,
-        # save_plots=True,
-        # filename_prefix=plot_filename_prefix + "-movies-background-"
-    # )
 
     # Format output
-    out = {"Reuters": {# "in-set foreground vs. in-set background": in_set_foreground_vs_background,
-                       "in-set foreground vs. oos": in_set_foreground_vs_oos,
-                       # "in-set-background vs. oos": in_set_background_vs_oos},
-                      },
-           "Movie Reviews": {"in-set foreground vs. oos": in_set_foreground_vs_movies,
-                             # "in-set background vs. oos": in_set_background_vs_movies}}
-                            }}
+    out = {"Reuters AUC": in_set_foreground_vs_oos,
+           "Movie Reviews AUC": in_set_foreground_vs_movies}
     return out
 
 
