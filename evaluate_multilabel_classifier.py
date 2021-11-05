@@ -65,7 +65,8 @@ def main(**kwargs):
     print("Recall:", recall)
 
     # compute percent of background examples correctly identified as such
-    is_pred_background = [len(e.labels) == 0 for e in background_prediction_examples]
+    is_pred_background = [e for e in background_prediction_examples
+                          if len(e.labels) == 0]
     print("Background examples correctly identified", len(is_pred_background), "/", len(background_prediction_examples))
     print(len(is_pred_background) / len(background_prediction_examples) * 100)
 
