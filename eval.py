@@ -103,7 +103,16 @@ def out_of_set_aucs(
         confidences = [in_set_confidences, out_of_set_confidences]
         labels = ["in-set", "out-of-set"]
         out_filepath = "experiments/" + filename_prefix + "detect-oos.png"
-        confidence_histograms(confidences, labels, out_filepath)
+        if filename_prefix.startswith("base-w-background"):
+            model_name = "B+F"
+        elif filename_prefix.startswith("base"):
+            model_name = "F"
+        if filename_prefix.find("movies") > -1:
+            dataset_name = "Movies-OOS"
+        else:
+            dataset_name = "Reuters-OOS"
+        title = "Model " + model_name
+        confidence_histograms(confidences, labels, out_filepath, title=title)
 
     # compute per-example AUC
     agg_method = lambda confidences: sum([(c-0.5)**2 for c in confidences])
@@ -120,14 +129,18 @@ def confidence_histograms(
         confidences: List[List[float]],
         labels: List[str],
         out_filepath: str,
-        density: bool = False) -> None:
+        density: bool = False,
+        title: str = "") -> None:
     """
     generate overlapping histograms of confidences and save to out_filepath
     """
     from matplotlib import pyplot as plt
-    plt.figure(figsize=(8, 6))
+    ax = plt.figure(figsize=(8, 6))
     plt.style.use("grayscale")
     for confidence, label in zip(confidences, labels):
-        plt.hist(confidence, label=label, density=density, alpha=0.5, histtype="stepfilled")
+        plt.hist(confidence, label=label, density=density, alpha=0.3, histtype="stepfilled")
     plt.legend(loc="upper right")
+    plt.xlabel("Class Membership Score")
+    plt.ylabel("Count")
+    plt.title(title)
     plt.savefig(out_filepath)
