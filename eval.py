@@ -107,6 +107,8 @@ def out_of_set_aucs(
             model_name = "B+F"
         elif filename_prefix.startswith("base"):
             model_name = "F"
+        else:
+            model_name = "AA"
         if filename_prefix.find("movies") > -1:
             dataset_name = "Movies-OOS"
         else:
