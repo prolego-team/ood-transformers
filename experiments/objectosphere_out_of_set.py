@@ -25,7 +25,7 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     inference_config = read_config_for_inference(inference_config_filepath)
 
     # Load reuters data, split into train/test/out-of-set
-    _, test_examples = reuters_dataset_to_train_test_examples(
+    train_examples, test_examples = reuters_dataset_to_train_test_examples(
         categories=None,
         background_categories=None,
         shuffle_train_examples=False
@@ -41,7 +41,8 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     in_set_background_test = [e for e in test_examples
                               if not contains_class_label(e, TOP_FIVE_CATEGORIES)
                               and contains_class_label(e, BACKGROUND_CATEGORIES)]
-    oos_test = [e for e in test_examples
+    # use data from train and test both for OOS
+    oos_test = [e for e in (train_examples + test_examples)
                 if not contains_class_label(e, TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES)]
 
     # Load movie reviews data
