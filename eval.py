@@ -126,7 +126,8 @@ def confidence_histograms(
     """
     from matplotlib import pyplot as plt
     plt.figure(figsize=(8, 6))
+    plt.style.use("grayscale")
     for confidence, label in zip(confidences, labels):
-        plt.hist(confidence, label=label, density=density, alpha=0.3)
+        plt.hist(confidence, label=label, density=density, alpha=0.5, histtype="stepfilled")
     plt.legend(loc="upper right")
     plt.savefig(out_filepath)
