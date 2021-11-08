@@ -106,7 +106,7 @@ def out_of_set_aucs(
         confidence_histograms(confidences, labels, out_filepath)
 
     # compute per-example AUC
-    agg_method = lambda confidences: max([c-0.5 for c in confidences])
+    agg_method = lambda confidences: sum([(c-0.5)**2 for c in confidences])
     in_set_confidences = [agg_method(example.confidences) for example in in_set_prediction_examples]
     out_of_set_confidences = [agg_method(example.confidences) for example in out_of_set_prediction_examples]
     y_score = in_set_confidences + out_of_set_confidences
