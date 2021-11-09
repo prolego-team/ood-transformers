@@ -109,10 +109,6 @@ def out_of_set_aucs(
             model_name = "F"
         else:
             model_name = "AA"
-        if filename_prefix.find("movies") > -1:
-            dataset_name = "Movies-OOS"
-        else:
-            dataset_name = "Reuters-OOS"
         title = "Model " + model_name
         confidence_histograms(confidences, labels, out_filepath, title=title)
 
@@ -137,10 +133,11 @@ def confidence_histograms(
     generate overlapping histograms of confidences and save to out_filepath
     """
     from matplotlib import pyplot as plt
-    ax = plt.figure(figsize=(8, 6))
-    plt.style.use("grayscale")
+    plt.rcParams.update({'font.size': 22})
+    plt.figure(figsize=(8, 5))
+    plt.style.use("tableau-colorblind10")
     for confidence, label in zip(confidences, labels):
-        plt.hist(confidence, label=label, density=density, alpha=0.3, histtype="stepfilled")
+        plt.hist(confidence, bins=30, label=label, density=density, alpha=0.3, histtype="stepfilled")
     plt.legend(loc="upper right")
     plt.xlabel("Class Membership Score")
     plt.ylabel("Count")
