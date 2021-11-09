@@ -104,7 +104,7 @@ def out_of_set_aucs(
         labels = ["in-set", "out-of-set"]
         out_filepath = "experiments/" + filename_prefix + "detect-oos.png"
         if filename_prefix.startswith("base-w-background"):
-            model_name = "B+F"
+            model_name = "F+B"
         elif filename_prefix.startswith("base"):
             model_name = "F"
         else:
@@ -134,7 +134,7 @@ def confidence_histograms(
     """
     from matplotlib import pyplot as plt
     plt.rcParams.update({'font.size': 22})
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(10, 7))
     plt.style.use("tableau-colorblind10")
     for confidence, label in zip(confidences, labels):
         plt.hist(confidence, bins=30, label=label, density=density, alpha=0.3, histtype="stepfilled")
