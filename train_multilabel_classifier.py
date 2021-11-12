@@ -59,6 +59,7 @@ def main(**kwargs):
     training_config = configs.read_config_for_training(kwargs["training_config_filepath"])
     if kwargs["saved_model_dirpath"]:
         TRAINING_ARGUMENTS["output_dir"] = kwargs["saved_model_dirpath"]
+        training_config.model_config.saved_model_dirpath = kwargs["saved_model_dirpath"]
     else:
         TRAINING_ARGUMENTS["output_dir"] = training_config.model_config.saved_model_dirpath
 
