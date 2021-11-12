@@ -10,12 +10,64 @@ import click
 
 from text_classification.configs import read_config_for_inference
 from text_classification.inference_utils import MultilabelPredictor
+from text_classification.eval_utils import multilabel_precision_recall
 
 from eval import out_of_set_aucs
-from nlp_datasets import BACKGROUND_CATEGORIES, TOP_FIVE_CATEGORIES, movie_reviews_dataset_to_examples, reuters_dataset_to_train_test_examples
+from nlp_datasets import (
+    BACKGROUND_CATEGORIES,
+    TOP_FIVE_CATEGORIES,
+    movie_reviews_dataset_to_examples,
+    reuters_dataset_to_train_test_examples
+)
 
 
-def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix: str = "") -> dict:
+def run_inference_compute_performance(
+        inference_config_filepath: str) -> dict:
+    """
+    """
+    # generate foreground/background multi-label examples from test data
+    _, test_examples = reuters_dataset_to_train_test_examples(
+        categories=TOP_FIVE_CATEGORIES,
+        background_categories=BACKGROUND_CATEGORIES,
+        shuffle_train_examples=False
+    )
+    foreground_test_examples = [e for e in test_examples if len(e.labels) > 0]
+    background_test_examples = [e for e in test_examples if len(e.labels) == 0]
+    # test_examples = test_examples[:10]
+
+    # read inference config
+    inference_config = read_config_for_inference(inference_config_filepath)
+
+    # run inference on foreground and background examples
+    predictor = MultilabelPredictor(
+        inference_config.model_config,
+        inference_config.class_labels
+    )
+    foreground_prediction_examples = predictor(
+        foreground_test_examples, inference_config.max_length)
+    background_prediction_examples = predictor(
+        background_test_examples, inference_config.max_length)
+
+    # compute precision and recall on foreground test set
+    precision, recall = multilabel_precision_recall(
+        foreground_test_examples,
+        foreground_prediction_examples
+    )
+
+    # compute background accuracy (fraction of correctly identified background examples)
+    # using the background test set
+    pred_background = [e for e in background_prediction_examples
+                       if len(e.labels) == 0]
+    background_accuracy = len(pred_background) / len(background_prediction_examples)
+
+    return {"precision": precision,
+            "recall": recall,
+            "background_accuracy": background_accuracy}
+
+
+def run_inference_compute_auc(
+        inference_config_filepath: str,
+        plot_filename_prefix: str = "") -> dict:
     """
     run inference on in-set vs. out-of-set (both Reuters and Movie Reviews) data
     and compute AUCs
@@ -24,7 +76,7 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
     # Read inference config
     inference_config = read_config_for_inference(inference_config_filepath)
 
-    # Load reuters data, split into train/test/out-of-set
+    # Load all reuters data, split into train/test/out-of-set
     train_examples, test_examples = reuters_dataset_to_train_test_examples(
         categories=None,
         background_categories=None,
@@ -38,9 +90,9 @@ def run_inference_and_eval(inference_config_filepath: str, plot_filename_prefix:
 
     in_set_foreground_test = [e for e in test_examples
                               if contains_class_label(e, TOP_FIVE_CATEGORIES)]
-    in_set_background_test = [e for e in test_examples
-                              if not contains_class_label(e, TOP_FIVE_CATEGORIES)
-                              and contains_class_label(e, BACKGROUND_CATEGORIES)]
+    # in_set_background_test = [e for e in test_examples
+    #                           if not contains_class_label(e, TOP_FIVE_CATEGORIES)
+    #                           and contains_class_label(e, BACKGROUND_CATEGORIES)]
     # use data from train and test both for OOS
     oos_test = [e for e in (train_examples + test_examples)
                 if not contains_class_label(e, TOP_FIVE_CATEGORIES + BACKGROUND_CATEGORIES)]
@@ -103,13 +155,6 @@ def generate_training_command(
     return command
 
 
-def generate_eval_command(saved_model_dirpath: str) -> str:
-    inference_config_filepath = os.path.join(saved_model_dirpath, "inference_config.json")
-    command = "python -m evaluate_multilabel_classifier " + inference_config_filepath
-    # command = command + " -c"
-    return command
-
-
 @click.command()
 @click.option("--do_train", "-t", is_flag=True)
 @click.option("--do_eval", "-e", is_flag=True)
@@ -136,26 +181,35 @@ def main(**kwargs):
     # Evaluate trained model performance on test set
     if kwargs["do_eval"]:
         # base model, no background examples
-        command = generate_eval_command("trained_base")
-        print(command)
-        os.system(command)
+        inference_config_filepath = os.path.join("trained_base", "inference_config.json")
+        base_out = run_inference_compute_performance(inference_config_filepath)
+        print("Base")
+        pprint(base_out)
 
         # base model, with background examples
-        command = generate_eval_command("trained_base_w_background")
-        print(command)
-        os.system(command)
+        inference_config_filepath = os.path.join("trained_base_w_background", "inference_config.json")
+        base_w_background_out = run_inference_compute_performance(inference_config_filepath)
+        print("Base Trained with Background")
+        pprint(base_w_background_out)
 
         # objectosphere model, with background examples
-        command = generate_eval_command("trained_objectosphere")
-        print(command)
-        os.system(command)
+        inference_config_filepath = os.path.join("trained_objectosphere", "inference_config.json")
+        objectosphere_out = run_inference_compute_performance(inference_config_filepath)
+        print("Objectosphere")
+        pprint(objectosphere_out)
 
     # Evaluate difference between in-set vs. out-of-set sample confidences
     if kwargs["do_auc"]:
         # Inference
-        base_metrics = run_inference_and_eval("trained_base/inference_config.json", plot_filename_prefix="base")
-        base_with_background_metrics = run_inference_and_eval("trained_base_w_background/inference_config.json", plot_filename_prefix="base-w-background")
-        objectosphere_metrics = run_inference_and_eval("trained_objectosphere/inference_config.json", plot_filename_prefix="objectosphere")
+        base_metrics = run_inference_compute_auc(
+            "trained_base/inference_config.json",
+            plot_filename_prefix="base")
+        base_with_background_metrics = run_inference_compute_auc(
+            "trained_base_w_background/inference_config.json",
+            plot_filename_prefix="base-w-background")
+        objectosphere_metrics = run_inference_compute_auc(
+            "trained_objectosphere/inference_config.json",
+            plot_filename_prefix="objectosphere")
 
         # Print Results
         print("Base")
