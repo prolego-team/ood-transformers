@@ -88,17 +88,22 @@ def incorrect_prediction_aucs(
 def out_of_set_aucs(
         in_set_prediction_examples: List[OutputMultilabelExample],
         out_of_set_prediction_examples: List[OutputMultilabelExample],
-        confidence_extraction_method: Callable,
+        confidence_transformation: Callable[[List[float]], List[float]] = lambda c: c,
+        confidence_aggregation: Callable[[List[float]], float] = lambda c: max(c),
         save_plots: bool = False,
         filename_prefix: str = "") -> float:
     """
     Compute AUC to determine how well we can distinguish between in-set
     vs. out-of-set (oos) examples using the associated confidences.
+       confidence_transformation: transformation to apply to all confidences
+          for each example
+       confidence_aggregation: method to aggregate all confidences for each
+          example into a single per-example confidence score
     """
 
-    in_set_confidences = [confidence_extraction_method(example.confidences)
+    in_set_confidences = [confidence_transformation(example.confidences)
                           for example in in_set_prediction_examples]
-    out_of_set_confidences = [confidence_extraction_method(example.confidences)
+    out_of_set_confidences = [confidence_transformation(example.confidences)
                               for example in out_of_set_prediction_examples]
     in_set_confidences = list(chain(*in_set_confidences))
     out_of_set_confidences = list(chain(*out_of_set_confidences))
@@ -113,18 +118,19 @@ def out_of_set_aucs(
         labels = ["in-set", "out-of-set"]
         out_filepath = "experiments/" + filename_prefix + "detect-oos.png"
         if filename_prefix.startswith("base-w-background"):
-            model_name = "F+B"
+            model_name = "P+N"
         elif filename_prefix.startswith("base"):
-            model_name = "F"
+            model_name = "P"
         else:
             model_name = "AA"
         title = "Model " + model_name
         confidence_histograms(confidences, labels, out_filepath, title=title)
 
     # compute per-example AUC
-    agg_method = lambda confidences: sum([(c-0.5)**2 for c in confidences])
-    in_set_confidences = [agg_method(example.confidences) for example in in_set_prediction_examples]
-    out_of_set_confidences = [agg_method(example.confidences) for example in out_of_set_prediction_examples]
+    in_set_confidences = [confidence_aggregation(example.confidences)
+                          for example in in_set_prediction_examples]
+    out_of_set_confidences = [confidence_aggregation(example.confidences)
+                              for example in out_of_set_prediction_examples]
     y_score = in_set_confidences + out_of_set_confidences
     y_true = [0] * len(in_set_confidences) + [1] * len(out_of_set_confidences)
     agg_auc = compute_auc(y_true, y_score)

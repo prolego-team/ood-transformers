@@ -117,19 +117,22 @@ def run_inference_compute_auc(
     )
 
     # confidence_extraction_method = lambda confidences: confidences
-    confidence_extraction_method = lambda confidences: [abs(c - 0.5) for c in confidences]
+    abs_distance = lambda confidences: [abs(c - 0.5) for c in confidences]
+    squared_euclidean_distance = lambda confidences: sum([(c - 0.5) ** 2 for c in confidences])
     # Compute AUCs for in-set vs. out-of-set examples
     in_set_foreground_vs_oos = out_of_set_aucs(
         in_set_foreground_preds,
         oos_preds,
-        confidence_extraction_method,
+        confidence_transformation=abs_distance,
+        confidence_aggregation=squared_euclidean_distance,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-reuters-"
     )
     in_set_foreground_vs_movies = out_of_set_aucs(
         in_set_foreground_preds,
         movies_preds,
-        confidence_extraction_method,
+        confidence_transformation=abs_distance,
+        confidence_aggregation=squared_euclidean_distance,
         save_plots=True,
         filename_prefix=plot_filename_prefix + "-movies-"
     )
