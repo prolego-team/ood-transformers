@@ -5,12 +5,21 @@ Evaluation utilities for Openset-NLP experiments
 from typing import Callable, Tuple, List
 from itertools import chain
 
+from sklearn.metrics import roc_auc_score
+
 from text_classification.dataset_utils import (
     InputMultilabelExample,
     OutputMultilabelExample
 )
 
-from experiment_utils import compute_auc
+
+def compute_auc(y_true: List[float], y_score: List[float]) -> float:
+    """
+    compute AUC, requiring AUC to always be > 0.5
+    """
+    auc = roc_auc_score(y_true, y_score)
+    auc = max(auc, 1 - auc)
+    return auc
 
 
 def incorrect_prediction_aucs(
