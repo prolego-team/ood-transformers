@@ -17,6 +17,11 @@ from text_classification.model_utils import MultilabelTrainer
 
 
 def split_inputs(inputs: dict) -> Tuple[dict, dict]:
+    """
+    Split inputs into foreground and background inputs.
+    Background inputs are identified as those that have no
+       non-zero labels.
+    """
     # construct foreground and background inputs
     input_ids = inputs["input_ids"].cpu().numpy()
     attention_mask = inputs["attention_mask"].cpu().numpy()
@@ -26,6 +31,7 @@ def split_inputs(inputs: dict) -> Tuple[dict, dict]:
     foreground = {k: [] for k in ["input_ids", "attention_mask", "labels"]}
 
     for ids, mask, lab in zip(input_ids, attention_mask, labels):
+        # foreground inputs have at least 1 non-zero label
         if np.any(lab > 0):
             foreground["input_ids"].append(ids)
             foreground["attention_mask"].append(mask)
@@ -42,6 +48,11 @@ def split_inputs(inputs: dict) -> Tuple[dict, dict]:
 class ObjectosphereTrainer(MultilabelTrainer):
 
     def compute_background_loss(self, model, inputs):
+        """
+        Compute MSELoss against a vector of [0 0 0 0]s for background
+           examples.
+        This has the effect of driving all logits to 0.
+        """
         inputs_copy = deepcopy(inputs)
         labels = inputs_copy.pop("labels")
         outputs = model(**inputs_copy)
@@ -52,10 +63,20 @@ class ObjectosphereTrainer(MultilabelTrainer):
         return (loss, outputs)
 
     def compute_loss(self, model, inputs, return_outputs=False):
+        """
+        Compute loss separately for foreground a background examples.
+        For foreground, use the same loss as MultilabelTrainer (binary
+           cross entropy loss).
+        For background, use the loss defined in compute_background_loss (
+            mean squared error).
+        Accumulate foreground and background losses.
+        """
 
         # split inputs into foreground vs. background
         foreground_inputs, background_inputs = split_inputs(inputs)
 
+        # check if foreground and/or background examples exist in the
+        # current inputs
         compute_foreground = len(foreground_inputs["input_ids"]) > 0
         compute_background = len(background_inputs["input_ids"]) > 0
 

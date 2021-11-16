@@ -117,12 +117,17 @@ def out_of_set_aucs(
         confidences = [in_set_confidences, out_of_set_confidences]
         labels = ["in-set", "out-of-set"]
         out_filepath = "experiments/" + filename_prefix + "detect-oos.png"
+        # Note: filename_prefixes and model_names here are specific
+        # to the objectosphere experiment and are used to generate plots
+        # with appropriate titles.
         if filename_prefix.startswith("base-w-background"):
             model_name = "P+N"
         elif filename_prefix.startswith("base"):
             model_name = "P"
-        else:
+        elif filename_prefix.startswith("objectosphere"):
             model_name = "AA"
+        else:
+            model_name = "Unknown"
         title = "Model " + model_name
         confidence_histograms(confidences, labels, out_filepath, title=title)
 

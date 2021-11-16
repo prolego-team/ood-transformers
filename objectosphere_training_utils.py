@@ -1,8 +1,8 @@
 """
-Utilities for running model training
+Utilities for running model training.
 
 Copied from text_classification.training_utils, but modified to allow
-a custom multilabel_trainer to be passed as input
+a custom multilabel_trainer to be passed as input.
 """
 
 import os
@@ -30,12 +30,9 @@ def train_multilabel_classifier(
         do_class_weights: bool = False,
         multilabel_trainer = model_utils.MultilabelTrainer) -> None:
     """
-    training loop for multi-label classification
-    Notes:
-       training_arguments: "output_dir" is a required key in the dictionary
-       do_eval: if True, evaluation during training (every logging_steps steps)
-          and at the end of training is performed. Note that if eval_dataset is None,
-          do_eval is automatically reset to False
+    Training loop for multi-label classification
+    Copied from text_classification.training_utils, but modified to allow
+       a custom multilabel_trainer to be passes as input.
     """
 
     if do_class_weights:

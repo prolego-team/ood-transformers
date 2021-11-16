@@ -64,7 +64,14 @@ def reuters_dataset_to_train_test_examples(
         seed: int = 12345
     ) -> Tuple[List[InputMultilabelExample], List[InputMultilabelExample]]:
     """
-    Create lists of train and test examples for the reuters dataset
+    Create lists of train and test examples for the Reuters dataset.
+    If categories are provided, return only the examples that have at least one
+       label that matches a category, and modify the list of labels to include
+       only those categories. Otherwise, if categories is None, return all examples in
+       the Reuters dataset, with no modifications to labels.
+    If background_categories is not None, also include any examples that
+       contain these background categories as labels, but remove the background
+       labels.
     If shuffle_train_examples is true, shuffle the order of training examples (set seed
        using the seed argument)
     """
@@ -110,7 +117,7 @@ def reuters_dataset_to_train_test_examples(
 def movie_reviews_dataset_dictionaries(categories: Optional[List[str]]) -> List[dict]:
     """
     Convert the movie reviews dataset from nltk to a list of dictionaries
-    with keys "text" and "labels".
+       with keys "text" and "labels".
     If categories are provided, modify labels to contain only those categories.
     Assumes the movie_reviews dataset has already been downloaded (see README.md).
     """
@@ -132,7 +139,9 @@ def movie_reviews_dataset_to_examples(
         categories: Optional[List[str]],
     ) -> List[InputMultilabelExample]:
     """
-    Create lists of examples for movie reviews dataset
+    Create lists of examples for movie reviews dataset. Include all examples
+       regardless, but if categories are provided, modify example labels to
+       contain only those categories.
     """
     movie_reviews_data = movie_reviews_dataset_dictionaries(categories=categories)
     examples = dictionaries_to_input_multilabel_examples(

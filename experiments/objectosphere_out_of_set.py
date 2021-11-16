@@ -24,6 +24,9 @@ from nlp_datasets import (
 def run_inference_compute_performance(
         inference_config_filepath: str) -> dict:
     """
+    Run inference on a trained model specified by inference_config_filepath
+    using in-set positive ("foreground") and in-set negative ("background") examples.
+    Compute precision, recall, and background accuracy.
     """
     # generate foreground/background multi-label examples from test data
     _, test_examples = reuters_dataset_to_train_test_examples(
@@ -147,6 +150,9 @@ def generate_training_command(
         saved_model_dirpath: str,
         use_background_categories: bool,
         use_objectosphere_loss: bool) -> str:
+    """
+    General command line string for executing model training.
+    """
     command = "python -m train_multilabel_classifier test_data/training_config.json "
     command += "-md " + saved_model_dirpath + " "
     command += "-icf " + os.path.join(saved_model_dirpath, "inference_config.json") + " "
@@ -163,6 +169,11 @@ def generate_training_command(
 @click.option("--do_eval", "-e", is_flag=True)
 @click.option("--do_auc", "-a", is_flag=True)
 def main(**kwargs):
+    """
+    Main driver method for running model training (--do_train), performance
+    evaluation on in-set data (--do_eval), and AUC on in-set vs. out-of-set
+    data (--do_auc).
+    """
 
     # Model training
     if kwargs["do_train"]:

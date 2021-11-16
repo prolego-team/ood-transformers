@@ -30,11 +30,11 @@ The environment only needs to be set up once. After it has been created, it can 
         cd openset-nlp
         source .venv/bin/activate
 
-Clone the textclassification repo within openset-nlp:
+Clone the text-classification repo within openset-nlp:
 
         cd openset-nlp
-        git clone https://github.com/prolego-team/textclassification.git
-        pip install -e textclassification
+        git clone https://github.com/prolego-team/text-classification.git
+        pip install -e text-classification
 
 ### Data
 
@@ -45,3 +45,32 @@ We will use the Reuters ModApte dataset and the Movie Reviews dataset, both of w
 
         nltk.download("reuters")
         nltk.download("movie_reviews")
+
+### Objectosphere Experiment
+
+Objective: Train a transformer for multilabel classification that demonstrates uncertainty in the face of unfamiliar (out-of-set) data.
+
+Inspired by: "Reducing Network Agnostophobia", Akshay Raj Dhamija, Manuel Günther, & Terrance E. Boult,
+https://arxiv.org/abs/1811.04110
+
+The work in this repository was submitted to ACL 2022 (ACL_2022_Submission_Submitted.pdf in the "docs" folder). For complete details of the experiment, refer to this paper.
+
+To recreate results, follow these steps:
+
+1. Train the models:
+
+        python -m experiments.objectosphere_out_of_set --do_train
+
+    This will create 3 directories ("trained_base", "trained_base_w_background", "trained_objectosphere"), each containing trained model artifacts.
+
+2. Evaluate model performance on in-set data:
+
+        python -m experiments.objectosphere_out_of_set --do_eval
+
+    Performance metrics are printed in the console.
+
+3. Compute AUC on in-set vs. out-of-set model performance scores:
+
+        python -m experiments.objectosphere_out_of_set --do_auc
+
+    AUCs are printed in the console.
