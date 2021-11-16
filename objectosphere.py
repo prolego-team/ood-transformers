@@ -40,8 +40,11 @@ def split_inputs(inputs: dict) -> Tuple[dict, dict]:
             background["input_ids"].append(ids)
             background["attention_mask"].append(mask)
             background["labels"].append(lab)
-    foreground = {k: torch.IntTensor(v).to(device="cuda") for k, v in foreground.items()}
-    background = {k: torch.IntTensor(v).to(device="cuda") for k, v in background.items()}
+    foreground = {k: torch.IntTensor(v) for k, v in foreground.items()}
+    background = {k: torch.IntTensor(v) for k, v in background.items()}
+    if torch.cuda.device_count() > 0:
+        foreground = {k: v.to(device="cuda") for k, v in foreground.items()}
+        background = {k: v.to(device="cuda") for k, v in background.items()}
     return foreground, background
 
 
