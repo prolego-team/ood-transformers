@@ -1,6 +1,6 @@
 """
 perform inference using a trained multi-label classifier
-and display some metrics
+and display per-class confusion matrices
 """
 
 

@@ -5,7 +5,6 @@ utility functions for running experiments
 from typing import Tuple, Callable, List
 
 import numpy as np
-from sklearn.metrics import roc_auc_score
 
 from text_classification.inference_utils import MultilabelPredictor
 from text_classification.dataset_utils import InputMultilabelExample, OutputMultilabelExample
@@ -47,12 +46,3 @@ def build_wrapped_predictors(
     )
 
     return wrapped_multilabel_predictor, wrapped_openmax_predictor
-
-
-def compute_auc(y_true: List[float], y_score: List[float]) -> float:
-    """
-    compute AUC, requiring AUC to always be > 0.5
-    """
-    auc = roc_auc_score(y_true, y_score)
-    auc = max(auc, 1 - auc)
-    return auc
