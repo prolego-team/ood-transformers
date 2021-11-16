@@ -30,11 +30,11 @@ The environment only needs to be set up once. After it has been created, it can 
         cd openset-nlp
         source .venv/bin/activate
 
-Clone the text-classification repo within openset-nlp:
+Clone the textclassification repo within openset-nlp:
 
         cd openset-nlp
-        git clone https://github.com/prolego-team/text-classification.git
-        pip install -e text-classification
+        git clone https://github.com/prolego-team/textclassification.git
+        pip install -e textclassification
 
 ### Data
 
