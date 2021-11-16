@@ -17,7 +17,8 @@ from nlp_datasets import (
     BACKGROUND_CATEGORIES,
     reuters_dataset_to_train_test_examples
 )
-import openmax, objectosphere, training_utils
+import openmax, objectosphere
+import objectosphere_training_utils as training_utils
 
 
 RANDOM_SEED = 12345

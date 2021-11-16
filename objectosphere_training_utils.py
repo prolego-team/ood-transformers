@@ -1,33 +1,22 @@
 """
 Utilities for running model training
+
+Copied from text_classification.training_utils, but modified to allow
+a custom multilabel_trainer to be passed as input
 """
 
 import os
 from typing import Dict, Optional
 
-import numpy as np
 import torch
 from transformers import (
     HfArgumentParser,
     TrainingArguments,
-    EvalPrediction,
     set_seed
 )
 
 from text_classification import configs, dataset_utils, model_utils
-
-
-def compute_multilabel_accuracy(
-        prediction: EvalPrediction,
-        threshold: float = 0.5) -> Dict[str, float]:
-    """
-    Compute accuracy of one-hot encoded representation of predictions
-    accuracy = # of correct predictions / # of total predictions
-    """
-    # apply activation
-    scores = torch.sigmoid(torch.tensor(prediction.predictions)).numpy()
-    preds = (scores > threshold).astype(int)
-    return {"accuracy": np.sum(preds == prediction.label_ids) / (preds.shape[0] * preds.shape[1])}
+from text_classification.training_utils import compute_multilabel_accuracy
 
 
 def train_multilabel_classifier(
@@ -57,6 +46,7 @@ def train_multilabel_classifier(
     # build training args
     do_eval = (do_eval) and (eval_dataset is not None)  # if eval_dataset is None, set do_eval to False
     training_arguments["do_eval"] = do_eval  # do evaluation every logging_steps steps
+    training_arguments["report_to"] = "none"
     parser = HfArgumentParser(TrainingArguments)
     training_args = parser.parse_dict(training_arguments)[0]
 
