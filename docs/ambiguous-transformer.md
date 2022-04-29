@@ -31,7 +31,7 @@ What had gone wrong? We would come to find out that, unbeknownest to us, we were
 
 This story can teach several valuable lessons - work closely with your business partners, set up a data pipeline, manage expectations - but one important takeaway that I've seen play out over and over again is this: For any number of reasons, the data that your model is making predictions on may not match the training data, and you need to build systems that are robust to this.
 
-## Why might a data set deviation from training data?
+## Why might a data set deviate from training data?
 
 There are a variety of reasons why production data may not match training. The anecdote I shared above is an example of a data pipeline mismatch between training and inference data. Even if a pipeline is set up correctly at the onset of a project, however, upstream changes to the pipeline can occur abruptly and without warning. For example, the engineering team that manages the pipeline may discover a bug that has unknowingly transformed the data upon ingestion. They fix the bug but do not consider the implications for a downstream model that was trained on the original, transformed data.
 
