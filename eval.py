@@ -1,5 +1,5 @@
 """
-Evaluation utilities for Openset-NLP experiments
+Evaluation utilities for experiments
 """
 
 from typing import Callable, Tuple, List

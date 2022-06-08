@@ -1,4 +1,4 @@
-# openset-nlp
+# ood-transformers
 
 ## Objective
 
@@ -16,23 +16,23 @@ Build an NLP model that can:
 
 Clone the git repo:
 
-        git clone https://github.com/prolego-team/openset-nlp.git
+        git clone https://github.com/prolego-team/ood-transformers.git
 
 Create a virtual environment and install package dependencies using pip:
 
-        cd openset-nlp
+        cd ood-transformers
         python3 -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt
 
 The environment only needs to be set up once. After it has been created, it can be activated using the command:
 
-        cd openset-nlp
+        cd ood-transformers
         source .venv/bin/activate
 
 Clone the text-classification repo within openset-nlp:
 
-        cd openset-nlp
+        cd ood-transformers
         git clone https://github.com/prolego-team/text-classification.git
         pip install -e text-classification
 
@@ -48,12 +48,10 @@ We will use the Reuters ModApte dataset and the Movie Reviews dataset, both of w
 
 ### Objectosphere Experiment
 
-Objective: Train a transformer for multilabel classification that demonstrates uncertainty in the face of unfamiliar (out-of-set) data.
+Objective: Train a transformer for multilabel classification that demonstrates uncertainty in the face of unfamiliar (out-of-distribution) data.
 
 Inspired by: "Reducing Network Agnostophobia", Akshay Raj Dhamija, Manuel Günther, & Terrance E. Boult,
 https://arxiv.org/abs/1811.04110
-
-The work in this repository was submitted to ACL 2022 (ACL_2022_Submission_Submitted.pdf in the "docs" folder). For complete details of the experiment, refer to this paper.
 
 To recreate results, follow these steps:
 
