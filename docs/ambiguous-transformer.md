@@ -2,7 +2,7 @@
 
 ## TLDR
 
-In Prolego labs, we set out to develop an NLP model that would be robust to out-of-distribution data. Drawing on extensive research in the computer vision field, we trained a transformer that intrinsically predicts out-of-distribution data, as well as performing well at the multi-label classification task at hand. Not only that but this method is also surprisingly simple to implement. For additional details beyond this post, or to review our implementation, check out our (paper)[] and (code repository)[].(TODO: add links).
+In Prolego labs, we set out to develop an NLP model that would be robust to out-of-distribution data. Drawing on extensive research in the computer vision field, we trained a transformer that intrinsically predicts out-of-distribution data, as well as performing well at the multi-label classification task at hand. Not only that but this method is also surprisingly simple to implement.
 
 At the onset of this project, we agreed that there are a few crucial requirements that a viable solution must have:
 
@@ -150,4 +150,4 @@ Second, this approach is simple to deploy as part of a model monitoring solution
 
 ## Conclusion
 
-Through this post, you've seen how some small modifications to a loss function can pay off in terms of model reliability and robustness to out-of-distribution data that inevitably arise "in the wild." TODO: Need a send-off, but what???
+Through this post, you've seen how some small modifications to a loss function can pay off in terms of model reliability and robustness to out-of-distribution data that inevitably arise "in the wild." For additional details beyond this post, or to review our implementation, check out our (paper)[] and (code repository)[].(TODO: add links).
