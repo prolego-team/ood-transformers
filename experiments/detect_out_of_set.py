@@ -12,10 +12,10 @@ import click
 from text_classification import configs
 from text_classification.dataset_utils import InputMultilabelExample
 
-import experiment_utils
-import openmax
-import eval
-from nlp_datasets import (
+from ood_transformers import experiment_utils
+from ood_transformers import openmax
+from ood_transformers import eval
+from ood_transformers.nlp_datasets import (
     reuters_dataset_to_train_test_examples,
     movie_reviews_dataset_to_examples
 )

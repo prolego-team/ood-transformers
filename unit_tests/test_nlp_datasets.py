@@ -3,7 +3,7 @@ from typing import Optional, List
 import pytest
 from text_classification.dataset_utils import InputMultilabelExample
 
-import nlp_datasets
+from ood_transformers import nlp_datasets
 
 
 @pytest.mark.parametrize("categories", [None, nlp_datasets.TOP_FIVE_CATEGORIES])

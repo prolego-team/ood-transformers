@@ -7,7 +7,7 @@ from typing import List
 import pytest
 
 from text_classification.dataset_utils import InputMultilabelExample, OutputMultilabelExample
-import eval
+from ood_transformers import eval
 
 
 @pytest.mark.usefixtures("input_multilabel_examples")

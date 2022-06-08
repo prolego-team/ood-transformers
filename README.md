@@ -18,23 +18,18 @@ Clone the git repo:
 
         git clone https://github.com/prolego-team/ood-transformers.git
 
-Create a virtual environment and install package dependencies using pip:
+Create a virtual environment and install ood-transformers using pip:
 
         cd ood-transformers
         python3 -m venv .venv
         source .venv/bin/activate
-        pip install -r requirements.txt
+        cd ..
+        pip install -e ood-transformers
 
 The environment only needs to be set up once. After it has been created, it can be activated using the command:
 
         cd ood-transformers
         source .venv/bin/activate
-
-Clone the text-classification repo within openset-nlp:
-
-        cd ood-transformers
-        git clone https://github.com/prolego-team/text-classification.git
-        pip install -e text-classification
 
 ### Data
 

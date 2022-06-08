@@ -9,7 +9,7 @@ import numpy as np
 from text_classification.inference_utils import MultilabelPredictor
 from text_classification.dataset_utils import InputMultilabelExample, OutputMultilabelExample
 
-import openmax
+from . import openmax
 
 
 def build_wrapped_predictors(

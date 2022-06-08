@@ -12,8 +12,8 @@ from text_classification.configs import read_config_for_inference
 from text_classification.inference_utils import MultilabelPredictor
 from text_classification.eval_utils import multilabel_precision_recall
 
-from eval import out_of_set_aucs
-from nlp_datasets import (
+from ood_transformers.eval import out_of_set_aucs
+from ood_transformers.nlp_datasets import (
     BACKGROUND_CATEGORIES,
     TOP_FIVE_CATEGORIES,
     movie_reviews_dataset_to_examples,

@@ -12,13 +12,14 @@ from text_classification import (
     dataset_utils,
     model_utils
 )
-from nlp_datasets import (
+
+from ood_transformers.nlp_datasets import (
     TOP_FIVE_CATEGORIES,
     BACKGROUND_CATEGORIES,
     reuters_dataset_to_train_test_examples
 )
-import openmax, objectosphere
-import objectosphere_training_utils as training_utils
+from ood_transformers import openmax, objectosphere
+from ood_transformers import objectosphere_training_utils as training_utils
 
 
 RANDOM_SEED = 12345
@@ -111,7 +112,7 @@ def main(**kwargs):
         train_dataset,
         test_dataset,
         training_config.model_config,
-        num_labels,
+        TOP_FIVE_CATEGORIES,
         TRAINING_ARGUMENTS,
         do_eval=True,
         do_class_weights=kwargs["do_class_weights"],

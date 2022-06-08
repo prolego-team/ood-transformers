@@ -128,9 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# cloned git repos
-text-classification/
-
 # training artifacts
 trained/
-inference_config.json
