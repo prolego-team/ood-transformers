@@ -96,7 +96,8 @@ class ObjectosphereTrainer(MultilabelTrainer):
         if compute_foreground and compute_background:
             # accumulate
             loss = foreground_loss + background_loss
-            outputs = background_outputs | foreground_outputs
+            outputs = SequenceClassifierOutput(loss=loss, logits=torch.cat((foreground_outputs.logits, background_outputs.logits)))
+            # outputs = background_outputs | foreground_outputs
         elif compute_foreground:
             loss = foreground_loss
             outputs = foreground_outputs
