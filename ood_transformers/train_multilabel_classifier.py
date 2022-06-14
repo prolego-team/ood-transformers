@@ -29,7 +29,7 @@ RANDOM_SEED = 12345
 # https://huggingface.co/transformers/main_classes/trainer.html#trainingarguments
 TRAINING_ARGUMENTS = {
     "do_train": True,
-    "evaluation_strategy": "steps",  # to disable evaluation during training, change to "no"
+    "evaluation_strategy": "no",  # to enable evaluation during training, change to "steps"
     "logging_steps": 50,
     "num_train_epochs": 1.0,
     "per_device_train_batch_size": 8,
