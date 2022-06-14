@@ -131,3 +131,5 @@ dmypy.json
 # training artifacts
 trained*/
 *.png
+
+docs/
