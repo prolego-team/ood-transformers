@@ -77,7 +77,6 @@ class ObjectosphereTrainer(MultilabelTrainer):
         """
 
         # split inputs into foreground vs. background
-        print("i init", inputs["input_ids"].shape)
         foreground_inputs, background_inputs = split_inputs(inputs)
 
         # check if foreground and/or background examples exist in the
