@@ -77,6 +77,7 @@ class ObjectosphereTrainer(MultilabelTrainer):
         """
 
         # split inputs into foreground vs. background
+        print("i init", inputs["input_ids"].shape)
         foreground_inputs, background_inputs = split_inputs(inputs)
 
         # check if foreground and/or background examples exist in the
@@ -96,7 +97,8 @@ class ObjectosphereTrainer(MultilabelTrainer):
         if compute_foreground and compute_background:
             # accumulate
             loss = foreground_loss + background_loss
-            outputs = SequenceClassifierOutput(loss=loss, logits=torch.cat((foreground_outputs.logits, background_outputs.logits)))
+            #outputs = SequenceClassifierOutput(loss=loss, logits=torch.cat((background_outputs.logits, foreground_outputs.logits), dim=0))
+            outputs = torch.cat((background_outputs.logits, foreground_outputs.logits))
             # outputs = background_outputs | foreground_outputs
         elif compute_foreground:
             loss = foreground_loss
