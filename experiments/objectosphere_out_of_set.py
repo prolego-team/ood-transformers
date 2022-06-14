@@ -153,7 +153,7 @@ def generate_training_command(
     """
     General command line string for executing model training.
     """
-    command = "python -m train_multilabel_classifier test_data/training_config.json "
+    command = "python -m ood_transformers.train_multilabel_classifier test_data/training_config.json "
     command += "-md " + saved_model_dirpath + " "
     command += "-icf " + os.path.join(saved_model_dirpath, "inference_config.json") + " "
     if use_background_categories:
