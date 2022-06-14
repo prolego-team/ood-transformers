@@ -6,7 +6,7 @@ a custom multilabel_trainer to be passed as input.
 """
 
 import os
-from typing import Dict, Optional
+from typing import List, Optional
 
 import torch
 from transformers import (
@@ -16,14 +16,14 @@ from transformers import (
 )
 
 from text_classification import configs, dataset_utils, model_utils
-from text_classification.training_utils import compute_multilabel_accuracy
+from text_classification.training_utils import build_compute_metrics
 
 
 def train_multilabel_classifier(
         train_dataset: dataset_utils.MultilabelDataset,
         eval_dataset: Optional[dataset_utils.MultilabelDataset],
         model_config: configs.ModelConfig,
-        num_labels: int,
+        class_labels: List[str],
         training_arguments: dict,
         use_fast: bool = model_utils.USE_FAST_TOKENIZER,
         do_eval: bool = True,
@@ -52,7 +52,7 @@ def train_multilabel_classifier(
 
     # load model and tokenizer
     model, tokenizer = model_utils.load_pretrained_model_and_tokenizer(
-        model_config, num_labels, use_fast)
+        model_config, len(class_labels), use_fast)
 
     # set up trainer
     trainer = multilabel_trainer(
@@ -60,7 +60,7 @@ def train_multilabel_classifier(
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        compute_metrics=compute_multilabel_accuracy
+        compute_metrics=build_compute_metrics(class_labels)
     )
     trainer.set_class_weights(class_weights)
 

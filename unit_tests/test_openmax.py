@@ -10,7 +10,7 @@ import numpy as np
 from text_classification.configs import read_config_for_inference
 from text_classification.dataset_utils import InputMultilabelExample
 
-import openmax
+from ood_transformers import openmax
 
 
 @pytest.mark.usefixtures("input_multilabel_examples")

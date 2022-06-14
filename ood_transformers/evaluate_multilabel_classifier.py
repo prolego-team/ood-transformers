@@ -13,7 +13,7 @@ from text_classification import (
     eval_utils
 )
 
-from nlp_datasets import reuters_dataset_dictionaries, TOP_FIVE_CATEGORIES
+from ood_transformers.nlp_datasets import reuters_dataset_dictionaries, TOP_FIVE_CATEGORIES
 
 
 @click.command()

@@ -8,10 +8,10 @@ import click
 
 from text_classification import configs
 
-from nlp_datasets import reuters_dataset_to_train_test_examples
-import openmax
-from eval import incorrect_prediction_aucs
-import experiment_utils
+from ood_transformers.nlp_datasets import reuters_dataset_to_train_test_examples
+from ood_transformers import openmax
+from ood_transformers.eval import incorrect_prediction_aucs
+from ood_transformers import experiment_utils
 
 
 @click.command()

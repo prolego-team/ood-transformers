@@ -4,13 +4,15 @@ unit tests for objectosphere.py
 
 import pytest
 
+from transformers.hf_argparser import HfArgumentParser
+from transformers.training_args import TrainingArguments
+
 from text_classification.configs import ModelConfig
 from text_classification.dataset_utils import InputMultilabelExample, MultilabelDataset
 from text_classification.model_utils import load_pretrained_model_and_tokenizer
-from text_classification.training_utils import compute_multilabel_accuracy
-from transformers.hf_argparser import HfArgumentParser
-from transformers.training_args import TrainingArguments
-import objectosphere
+from text_classification.training_utils import build_compute_metrics
+
+from ood_transformers import objectosphere
 
 TRAINING_ARGUMENTS = {
     "do_train": True,
@@ -63,7 +65,7 @@ def test_ObjectosphereTrainer(input_multilabel_examples, class_labels):
         args=training_args,
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
-        compute_metrics=compute_multilabel_accuracy
+        compute_metrics=build_compute_metrics(class_labels)
     )
 
     # train
