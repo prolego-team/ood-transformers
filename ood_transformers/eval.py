@@ -105,8 +105,8 @@ def out_of_set_aucs(
     out_of_set_confidences = list(chain(*[example.confidences for example in out_of_set_prediction_examples]))
 
     # apply confidence transform
-    in_set_trans_confidences = [confidence_transformation(c) for c in in_set_confidences]
-    out_of_set_trans_confidences = [confidence_transformation(c) for c in out_of_set_confidences]
+    in_set_trans_confidences = confidence_transformation(in_set_confidences)
+    out_of_set_trans_confidences = confidence_transformation(out_of_set_confidences)
 
     # compute AUC
     y_score = in_set_trans_confidences + out_of_set_trans_confidences
@@ -133,12 +133,12 @@ def out_of_set_aucs(
         confidence_histograms(confidences, labels, out_filepath, title=title)
 
     # compute per-example AUC
-    in_set_trans_confidences = [confidence_aggregation(c)
-                                for c in in_set_confidences]
-    out_of_set_trans_confidences = [confidence_aggregation(c)
-                                    for c in out_of_set_confidences]
-    y_score = in_set_trans_confidences + out_of_set_trans_confidences
-    y_true = [0] * len(in_set_trans_confidences) + [1] * len(out_of_set_trans_confidences)
+    in_set_agg_confidences = [confidence_aggregation(example.confidences)
+                          for example in in_set_prediction_examples]
+    out_of_set_agg_confidences = [confidence_aggregation(example.confidences)
+                              for example in out_of_set_prediction_examples]
+    y_score = in_set_agg_confidences + out_of_set_agg_confidences
+    y_true = [0] * len(in_set_agg_confidences) + [1] * len(out_of_set_agg_confidences)
     agg_auc = compute_auc(y_true, y_score)
 
     return auc, agg_auc
