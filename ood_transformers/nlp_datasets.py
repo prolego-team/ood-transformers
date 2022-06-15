@@ -5,14 +5,12 @@ utilities for interacting with publically available datasets
 from typing import List, Optional, Tuple
 import random
 
-try:
-    from nltk.corpus import reuters, movie_reviews
-except:
-    # download these datasets
-    import nltk
-    nltk.download("reuters")
-    nltk.download("movie_reviews")
-    from nltk.corpus import reuters, movie_reviews
+# download the datasets
+import nltk
+nltk.download("reuters")
+nltk.download("movie_reviews")
+
+from nltk.corpus import reuters, movie_reviews
 
 from text_classification.dataset_utils import (
     InputMultilabelExample,
